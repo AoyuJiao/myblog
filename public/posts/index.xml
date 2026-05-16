@@ -9,12 +9,11 @@
     <lastBuildDate>Sun, 17 May 2026 00:10:48 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>First Post</title>
+      <title>Hello!</title>
       <link>http://localhost:1313/posts/first-post/</link>
       <pubDate>Sun, 17 May 2026 00:10:48 +0800</pubDate>
       <guid>http://localhost:1313/posts/first-post/</guid>
-      <description>&lt;h1 id=&#34;hello-world&#34;&gt;Hello World&lt;/h1&gt;
-&lt;p&gt;你好世界&lt;/p&gt;</description>
+      <description>&lt;p&gt;尽管我有很多现成的文章，但我需要学习如何把他们挪到这个博客上，请晚几天再来，谢谢你的关注！&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

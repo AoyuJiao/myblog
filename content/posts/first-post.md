@@ -1,9 +1,7 @@
 +++
 date = '2026-05-17T00:10:48+08:00'
 draft = false
-title = 'First Post'
+title = 'Hello!'
 +++
 
-# Hello World
-
-你好世界
+尽管我有很多现成的文章，但我需要学习如何把他们挪到这个博客上，请晚几天再来，谢谢你的关注！
