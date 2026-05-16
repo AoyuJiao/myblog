@@ -1,7 +1,13 @@
 baseURL = 'https://myblog-8fq.pages.dev/'
 locale = 'zh-cn'
-title = 'My New Hugo Project'
+title = '学海云舟'
 theme = 'PaperMod'
 
 [pagination]
 paperSize = 5
+
+[params]
+ShowReadingTime = true
+ShowCodeCopyButtons = true
+ShowPostNavLinks = true
+ShowBreadCrumbs = true
