@@ -1,4 +1,4 @@
-baseURL = 'https://myblog-8fq.pages.dev/'
+baseURL = 'https://learnfocus.cn/'
 locale = 'zh-cn'
 title = '学海云舟'
 theme = 'PaperMod'
