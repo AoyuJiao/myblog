@@ -7,7 +7,25 @@ theme = 'PaperMod'
 paperSize = 5
 
 [params]
+defaultTheme = "auto"
 ShowReadingTime = true
 ShowCodeCopyButtons = true
 ShowPostNavLinks = true
 ShowBreadCrumbs = true
+ShowToc = true
+
+[params.homeInfoParams]
+Title = "你好，我是AoyuJiao"
+Content = """
+简介
+
+ - Gromacs
+ - Linux
+ - 分子模拟
+ - 科研计算
+"""
+
+[[params.socialIcons]]
+name = "email"
+url = "mailto:aoyujiao050824@gamil.com"
+

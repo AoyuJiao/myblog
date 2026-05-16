@@ -1,0 +1,11 @@
+:root {
+  --main-width: 960px;
+}
+
+body {
+  font-family: "LXGW WenKai", sans-serif;
+}
+
+.post-content pre {
+  border-radius: 12px;
+}
