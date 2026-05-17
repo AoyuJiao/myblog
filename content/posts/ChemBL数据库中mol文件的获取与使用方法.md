@@ -22,4 +22,4 @@ title = 'ChemBL数据库中mol文件的获取与使用方法'
 
 该算法将自动优化分子构象至能量最低状态，之后可将结果保存为支持三维结构信息的.sdf文件。
 
-详细操作视频可参考[此微信视频号内容](URL "https://weixin.qq.com/sph/AwSZKe3DU")。
+详细操作视频可参考[此微信视频号内容](https://weixin.qq.com/sph/AwSZKe3DU)。
