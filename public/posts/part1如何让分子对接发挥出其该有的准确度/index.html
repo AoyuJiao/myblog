@@ -5,21 +5,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>为什么Schrödinger Maestro与AutoDock Vina计算出的“结合能”差异很大? | 学海云舟</title>
+<title>(Part1)如何让分子对接发挥出其该有的准确度？ | 学海云舟</title>
 <meta name="keywords" content="">
-<meta name="description" content="目前用于受体-配体结合模式预测的主流软件有两个：其一为商业软件Schrödinger Maestro，它工作流清晰、GUI完善；其二为开源软件AutoDock Vina，它专为“懒人”设计，无需考虑细枝末节即可快速完成预测。
-但我们可以发现，Maestro输出的自由能数据（r_i_glide_energy）与Vina输出的数据（affinity）差别很大。前者多在-7~-5kcal/mol，后者可达到最低-40kcal/mol，这对于包括我在内的初学者造成了一定困扰，到底谁才是真正的“结合自由能”？
-我通过MM/GBSA方法验证了HMOX1与大量小分子的结合自由能，结果显示其与Maestro的输出结果高度一致，这表明Vina所输出的affinity并不是结合自由能。
-通过查阅介绍Vina的文献1，我发现Vina所输出的affinity尽管拥有与自由能相同的计量单位“kcal/mol”，但并不是自由能，其在文章中如是说：
+<meta name="description" content="最近读到了一篇在Nature Machine Intelligence上发表的一篇研究文章，其自定义了一个全新的测试集，并测试了现今常见的一些分子对接工具的性能。
+分子对接可以作为蛋白-小分子结合模式研究的任一站。一方面，依托于诸如RCSB PDB的生物大分子数据库和海量小分子库，通过逐步提高对接精度，可以实现在药物设计中对先导化合物的逐级筛选；另一方面，研究中解析出的蛋白结构，也可通过高精度分子对接探索其结合模式。其简单、方便、经济，深受生命科学研究人员的青睐。
 
-We see our approach to the scoring function as more of ”machine learning” than directly physics-based in its nature. It is ultimately justified by its performance on test problems rather than by theoretical considerations following some, possibly too strong, approximating assumptions.
+上图是此文中各工具的测试结果之一，可以看到大部分工具的误差都可以控制在几埃米以内。但很多时候我们得到的结果却与实验结论大相径庭，其原因如何？
+很多分子对接的教程，只讲述了一个套路化的步骤，也就是只保证预测出结果。但很显然，蛋白结构千变万化，势必不可能有一个套路化的方法覆盖所有的蛋白。那些针对诸如盲对接，或甚至连蛋白结构都靠预测（AF3）的办法，只是在实验结构空白时的下下策。
+我认为，分子对接同其他分子结合模式的研究一样，一定要建立在充分了解受体蛋白结构的基础上。现今很多蛋白都已有大量的文献研究，而这些教程却不讲如何利用之，完全抛开文献去做对接，那结果怎么会准确？
+若要改进现有的分子对接教程，有三个步骤对结果准确性的影响很大：①受体结构的选择。②结构预处理方法。③口袋（对接盒子）的设置。这三个步骤所需要的正是充分的文献挖掘。注意：以下内容基于你已经充分了解此蛋白结构的前提，如果还没有，请至少要先读一下这个蛋白结构的综述文章，来有一个初步了解。
+首先说受体结构的选择：同一个蛋白，RCSB PDB数据库可能有数百条收录，到底要选择哪个？我们需要知道的是，这个数据库每条收录的背后都一篇文章，所以读一读这个文章，一定可以获得最大量的信息。但这个读文章来筛选的方法也不现实，需要一个粗筛的方法。因为PDB数据库的列表界面会画出结构的三维示意图，可以看看是否包括自己要用的部分。
 
-也就是说，affinity是一个更偏向于“机器学习”的对接评分，而不是对自由能的物理计算。这个函数的推导结合了基于知识的势能和经验评分函数的某些优势，而这些优势是从受体-配体复合物的构象偏好和实验亲和力测量中提取得到的经验信息。
-而Maestro在使用Glide模块对接后，也会输出一个列名为r_i_docking_score的对接打分，这个打分同样是使用kcal/mol作为计量单位，同样与MM/GBSA预测到的结果大相径庭。Mastro在其用户手册关于Glide方法论的介绍中作了如下解释：
-
-The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are parametrized in this calibration: these terms should therefore not be interpreted as quantitative calculations of energies.">
+如图是TGFBR1(PAI-1)的整体结构，可见其由三部分组成。作为一个跨膜受体，其中间的部分是跨膜螺旋，而右侧是膜内的区域，也是功能区域。所以，可以看到大部分抑制剂都是针对这个膜内区域展开研究，其他的两个部分甚至连其结构都鲜有报道。因此在PDB数据库中挑选结构时，只要包含这个胞内部分就足够了。
+（未完待续）">
 <meta name="author" content="">
-<link rel="canonical" href="http://localhost:1313/posts/%E4%B8%BA%E4%BB%80%E4%B9%88schr%C3%B6dinger-maestro%E4%B8%8Eautodock-vina%E8%AE%A1%E7%AE%97%E5%87%BA%E7%9A%84%E7%BB%93%E5%90%88%E8%83%BD%E5%B7%AE%E5%BC%82%E5%BE%88%E5%A4%A7/">
+<link rel="canonical" href="http://localhost:1313/posts/part1%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.25d21dbd4307f87f912c584b8648099485bcc042471b9136f46be3e5612ddd02.css" integrity="sha256-JdIdvUMH&#43;H&#43;RLFhLhkgJlIW8wEJHG5E29Gvj5WEt3QI=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
@@ -28,7 +28,7 @@ The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are pa
 <link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/%E4%B8%BA%E4%BB%80%E4%B9%88schr%C3%B6dinger-maestro%E4%B8%8Eautodock-vina%E8%AE%A1%E7%AE%97%E5%87%BA%E7%9A%84%E7%BB%93%E5%90%88%E8%83%BD%E5%B7%AE%E5%BC%82%E5%BE%88%E5%A4%A7/">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/part1%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/">
 <noscript>
     <style>
         #theme-toggle,
@@ -143,37 +143,26 @@ document.addEventListener("DOMContentLoaded", function() {
     </svg>
 </nav>
     <h1 class="post-title entry-hint-parent">
-      为什么Schrödinger Maestro与AutoDock Vina计算出的“结合能”差异很大?
+      (Part1)如何让分子对接发挥出其该有的准确度？
     </h1>
     <div class="post-meta">
 
-<span title='2025-07-12 00:14:52 +0800 CST'>July 12, 2025</span>
+<span title='2026-05-16 13:01:00 +0800 CST'>May 16, 2026</span>
 
 </div>
   </header> 
 
-  <div class="post-content md-content"><p>目前用于受体-配体结合模式预测的主流软件有两个：其一为商业软件Schrödinger Maestro，它工作流清晰、GUI完善；其二为开源软件AutoDock Vina，它专为“懒人”设计，无需考虑细枝末节即可快速完成预测。</p>
-<p>但我们可以发现，Maestro输出的自由能数据（<code>r_i_glide_energy</code>）与Vina输出的数据（<code>affinity</code>）差别很大。前者多在-7~-5kcal/mol，后者可达到最低-40kcal/mol，这对于包括我在内的初学者造成了一定困扰，到底谁才是真正的“结合自由能”？</p>
-<p>我通过MM/GBSA方法验证了HMOX1与大量小分子的结合自由能，结果显示其与Maestro的输出结果高度一致，这表明Vina所输出的<code>affinity</code>并不是结合自由能。</p>
-<p>通过查阅介绍Vina的文献<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>，我发现Vina所输出的<code>affinity</code>尽管拥有与自由能相同的计量单位“kcal/mol”，但并不是自由能，其在文章中如是说：</p>
-<blockquote>
-<p>We see our approach to the scoring function as more of ”machine learning” than directly physics-based in its nature. It is ultimately justified by its performance on test problems rather than by theoretical considerations following some, possibly too strong, approximating assumptions.</p>
-</blockquote>
-<p>也就是说，<code>affinity</code>是一个更偏向于“机器学习”的对接评分，而不是对自由能的物理计算。这个函数的推导结合了基于知识的势能和经验评分函数的某些优势，而这些优势是从受体-配体复合物的构象偏好和实验亲和力测量中提取得到的经验信息。</p>
-<p>而Maestro在使用Glide模块对接后，也会输出一个列名为<code>r_i_docking_score</code>的对接打分，这个打分同样是使用kcal/mol作为计量单位，同样与MM/GBSA预测到的结果大相径庭。Mastro在其用户手册关于Glide方法论的介绍中作了如下解释：</p>
-<blockquote>
-<p>The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are parametrized in this calibration: these terms should therefore not be interpreted as quantitative calculations of energies.</p>
-</blockquote>
-<p>也就是SP和XP GlideScore都已校准以重现某些实验结合亲和力。GlideScore 公式中的各个项（<code>Emodel</code>、<code>Ecoul</code>等）在校准中进行了参数化：因此这些项不应被解释为能量计算的定量结果。这就与Vina所提供的<code>affinity</code>很相似了。</p>
-<p>因此我们已经可以确定，Vina计算得到的<code>affinity</code>和Maestro计算得到的<code>GlideScore</code>尽管都使用了kcal/mol作为计量单位，但都是人为定义的经过参数化的评分函数，而不是物理（或化学）意义上的结合自由能。评分函数作为一个结合模式的评分参考，应当与结合自由能共同纳入考虑，作为早期虚拟筛选的排序指标。</p>
-<div class="footnotes" role="doc-endnotes">
-<hr>
-<ol>
-<li id="fn:1">
-<p>Trott O, Olson AJ. AutoDock Vina: improving the speed and accuracy of docking with a new scoring function, efficient optimization, and multithreading. J Comput Chem. 2010 Jan 30;31(2):455-61. doi: 10.1002/jcc.21334. PMID: 19499576; PMCID: PMC3041641.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
-</li>
-</ol>
-</div>
+  <div class="post-content md-content"><p>最近读到了一篇在Nature Machine Intelligence上发表的一篇研究文章，其自定义了一个全新的测试集，并测试了现今常见的一些分子对接工具的性能。</p>
+<p>分子对接可以作为蛋白-小分子结合模式研究的任一站。一方面，依托于诸如RCSB PDB的生物大分子数据库和海量小分子库，通过逐步提高对接精度，可以实现在药物设计中对先导化合物的逐级筛选；另一方面，研究中解析出的蛋白结构，也可通过高精度分子对接探索其结合模式。其简单、方便、经济，深受生命科学研究人员的青睐。</p>
+<p><img alt="一些对接工具的精度测试" loading="lazy" src="/images/%E4%B8%80%E4%BA%9B%E5%AF%B9%E6%8E%A5%E5%B7%A5%E5%85%B7%E7%9A%84%E7%B2%BE%E5%BA%A6%E6%B5%8B%E8%AF%95.webp"></p>
+<p>上图是此文中各工具的测试结果之一，可以看到大部分工具的误差都可以控制在几埃米以内。但很多时候我们得到的结果却与实验结论大相径庭，其原因如何？</p>
+<p>很多分子对接的教程，只讲述了一个套路化的步骤，也就是只保证预测出结果。但很显然，蛋白结构千变万化，势必不可能有一个套路化的方法覆盖所有的蛋白。那些针对诸如盲对接，或甚至连蛋白结构都靠预测（AF3）的办法，只是在实验结构空白时的下下策。</p>
+<p>我认为，分子对接同其他分子结合模式的研究一样，一定要建立在充分了解受体蛋白结构的基础上。现今很多蛋白都已有大量的文献研究，而这些教程却不讲如何利用之，完全抛开文献去做对接，那结果怎么会准确？</p>
+<p>若要改进现有的分子对接教程，有三个步骤对结果准确性的影响很大：①受体结构的选择。②结构预处理方法。③口袋（对接盒子）的设置。这三个步骤所需要的正是充分的文献挖掘。注意：以下内容基于你已经充分了解此蛋白结构的前提，如果还没有，请至少要先读一下这个蛋白结构的综述文章，来有一个初步了解。</p>
+<p>首先说受体结构的选择：同一个蛋白，RCSB PDB数据库可能有数百条收录，到底要选择哪个？我们需要知道的是，这个数据库每条收录的背后都一篇文章，所以读一读这个文章，一定可以获得最大量的信息。但这个读文章来筛选的方法也不现实，需要一个粗筛的方法。因为PDB数据库的列表界面会画出结构的三维示意图，可以看看是否包括自己要用的部分。</p>
+<p><img alt="TGFBR1的整体结构" loading="lazy" src="/images/TGFBR1%E7%9A%84%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84.webp"></p>
+<p>如图是TGFBR1(PAI-1)的整体结构，可见其由三部分组成。作为一个跨膜受体，其中间的部分是跨膜螺旋，而右侧是膜内的区域，也是功能区域。所以，可以看到大部分抑制剂都是针对这个膜内区域展开研究，其他的两个部分甚至连其结构都鲜有报道。因此在PDB数据库中挑选结构时，只要包含这个胞内部分就足够了。</p>
+<p><em>（未完待续）</em></p>
 
 
   </div>
@@ -182,9 +171,9 @@ document.addEventListener("DOMContentLoaded", function() {
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/autodocktools-%E5%AF%BC%E5%85%A5%E5%89%8D%E5%A4%84%E7%90%86%E9%81%BF%E5%85%8D-pdbsdf-%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E5%BC%82%E5%B8%B8/">
-    <span class="title">« Prev</span>
-    <span>AutoDockTools 导入前处理：避免 PDB/SDF 小分子键合异常</span>
+  <a class="next" href="http://localhost:1313/posts/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/">
+    <span class="title">Next »</span>
+    <span>【学习笔记】蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法</span>
   </a>
 </nav>
 

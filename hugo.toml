@@ -17,13 +17,31 @@ ShowToc = true
 [params.homeInfoParams]
 Title = "你好，我是AoyuJiao"
 Content = """
-我是一名医学生，但发现似乎更擅长分子模拟，尤其是蛋白质-小分子配体模拟相关的内容。我会在这里分享我自己的一些见解，或摘抄一些好文章，欢迎常来坐坐！
+我会在这里分享我自己的一些见解，或摘抄一些好文章，欢迎常来坐坐！
 如果你想在这个网站上投稿、想要与我合作、或单纯就是想聊聊天，请点击下面的邮箱按钮与我联系。我会尝试在未来为博客添加评论系统。
 
 为什么选择“学海云舟/learnfocus”这个名字？因为知识无涯，云作舟。我希望通过互联网的广阔天地，分享优质、有趣的科学研究成果。在这里，探索未知，分享洞见，与您一同成长。
 """
 
 [[params.socialIcons]]
+name = "orcid"
+url = "https://orcid.org/0009-0000-0606-2737"
+
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/AoyuJiao"
+
+[[params.socialIcons]]
 name = "email"
 url = "mailto:aoyujiao050824@gamil.com"
 
+[params.profileMode]
+enabled = true
+title = "AoyuJiao"
+subtitle = "一名医学生，但发现似乎更擅长分子模拟，尤其是蛋白质-小分子配体模拟相关的内容。请相信：百炼淬成至臻。"
+imageUrl = "/avatar.jpg"
+imageTitle = "avatar"
+
+[[params.profileMode.buttons]]
+name = "博客文章"
+url = "/posts"

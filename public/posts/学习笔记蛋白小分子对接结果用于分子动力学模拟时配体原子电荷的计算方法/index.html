@@ -5,21 +5,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>为什么Schrödinger Maestro与AutoDock Vina计算出的“结合能”差异很大? | 学海云舟</title>
+<title>【学习笔记】蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法 | 学海云舟</title>
 <meta name="keywords" content="">
-<meta name="description" content="目前用于受体-配体结合模式预测的主流软件有两个：其一为商业软件Schrödinger Maestro，它工作流清晰、GUI完善；其二为开源软件AutoDock Vina，它专为“懒人”设计，无需考虑细枝末节即可快速完成预测。
-但我们可以发现，Maestro输出的自由能数据（r_i_glide_energy）与Vina输出的数据（affinity）差别很大。前者多在-7~-5kcal/mol，后者可达到最低-40kcal/mol，这对于包括我在内的初学者造成了一定困扰，到底谁才是真正的“结合自由能”？
-我通过MM/GBSA方法验证了HMOX1与大量小分子的结合自由能，结果显示其与Maestro的输出结果高度一致，这表明Vina所输出的affinity并不是结合自由能。
-通过查阅介绍Vina的文献1，我发现Vina所输出的affinity尽管拥有与自由能相同的计量单位“kcal/mol”，但并不是自由能，其在文章中如是说：
-
-We see our approach to the scoring function as more of ”machine learning” than directly physics-based in its nature. It is ultimately justified by its performance on test problems rather than by theoretical considerations following some, possibly too strong, approximating assumptions.
-
-也就是说，affinity是一个更偏向于“机器学习”的对接评分，而不是对自由能的物理计算。这个函数的推导结合了基于知识的势能和经验评分函数的某些优势，而这些优势是从受体-配体复合物的构象偏好和实验亲和力测量中提取得到的经验信息。
-而Maestro在使用Glide模块对接后，也会输出一个列名为r_i_docking_score的对接打分，这个打分同样是使用kcal/mol作为计量单位，同样与MM/GBSA预测到的结果大相径庭。Mastro在其用户手册关于Glide方法论的介绍中作了如下解释：
-
-The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are parametrized in this calibration: these terms should therefore not be interpreted as quantitative calculations of energies.">
+<meta name="description" content="蛋白质-配体复合物是经常通过分子动力学研究的一类问题，这往往需要对小分子配体计算RESP电荷，经常有人问我应该取小分子的什么构象来计算、用不用先优化，我在这里统一说一下我的看法。
+原理上，最理想的算这种情况的配体的RESP电荷的做法是：对真实的复合物动力学轨迹每隔一定帧数提取一次小分子结构算RESP电荷（直接算单点任务得到波函数文件就够了），然后对所有帧取平均。这样得到的RESP电荷可以对动力学过程中配体与外环境的作用有均衡的描述，而且哪个构象出现概率越大，哪个构象对计算的RESP电荷起到的权重越大、被照顾得越充分。但是这么做不仅麻烦、耗时高，而且由于原本并不知道配体的原子电荷，动力学也没法跑。一个折中做法是先用比如ADCH、AM1-BCC这样对分子表面静电势重现性还不错的原子电荷作为配体的“初猜”电荷去跑复合物的动力学，然后计算各帧平均的配体的RESP电荷，再用新的配体的原子电荷跑复合物的动力学&hellip;反复如此，最后配体的原子电荷就能确定下来。但显然这么做太折腾、太费时了，而且由于一些随机性因素，还未必最后能收敛。
+如果你的蛋白-配体复合物是X光衍射测的，而且解析度较高，那么可以直接把配体抠出来，只对氢的位置用量子化学优化（为什么要这么做看《实验测定分子结构的方法以及将实验结构用于量子化学计算需要注意的问题》http://sobereva.com/569），然后算RESP电荷。这么做的合理性在于实验测的复合物中配体的构象是比较理想的结合状态，实际跑动力学的时候这种构象也应当是主导性的构象（假设模拟合理的话）。
+如果你的蛋白-配体复合物结构是分子对接得到的，那么这个结构里配体的构象的合理性极其有限，甚至可能有明显不合理之处，显然不适合直接拿这样的构象算RESP电荷（哪怕是对氢原子做优化后）。我的一般建议是：先以对接得到的结构为初猜结构做个常规的配体分子的几何优化，然后计算RESP电荷，之后跑复合物的动力学。如果发现动力学过程中配体与蛋白质结合的主要构象与之前优化出来的配体构象相差不大，那么原子电荷就不用重新算；如果相差很显著，说明之前算的RESP电荷可能对于描述蛋白-配体相互作用不够理想，此时对动力学轨迹做个簇分析得到最有代表性的复合物构象，在动力学程序里对复合物做个力场级别的能量极小化，然后把配体抠出来直接算RESP电荷（不再经过量子化学优化），将之作为正式的复合物模拟用的配体的原子电荷即可。
+本文摘自sobereva的博文RESP拟合静电势电荷的原理以及在Multiwfn中的计算。">
 <meta name="author" content="">
-<link rel="canonical" href="http://localhost:1313/posts/%E4%B8%BA%E4%BB%80%E4%B9%88schr%C3%B6dinger-maestro%E4%B8%8Eautodock-vina%E8%AE%A1%E7%AE%97%E5%87%BA%E7%9A%84%E7%BB%93%E5%90%88%E8%83%BD%E5%B7%AE%E5%BC%82%E5%BE%88%E5%A4%A7/">
+<link rel="canonical" href="http://localhost:1313/posts/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.25d21dbd4307f87f912c584b8648099485bcc042471b9136f46be3e5612ddd02.css" integrity="sha256-JdIdvUMH&#43;H&#43;RLFhLhkgJlIW8wEJHG5E29Gvj5WEt3QI=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
@@ -28,7 +22,7 @@ The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are pa
 <link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/%E4%B8%BA%E4%BB%80%E4%B9%88schr%C3%B6dinger-maestro%E4%B8%8Eautodock-vina%E8%AE%A1%E7%AE%97%E5%87%BA%E7%9A%84%E7%BB%93%E5%90%88%E8%83%BD%E5%B7%AE%E5%BC%82%E5%BE%88%E5%A4%A7/">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/">
 <noscript>
     <style>
         #theme-toggle,
@@ -143,37 +137,20 @@ document.addEventListener("DOMContentLoaded", function() {
     </svg>
 </nav>
     <h1 class="post-title entry-hint-parent">
-      为什么Schrödinger Maestro与AutoDock Vina计算出的“结合能”差异很大?
+      【学习笔记】蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法
     </h1>
     <div class="post-meta">
 
-<span title='2025-07-12 00:14:52 +0800 CST'>July 12, 2025</span>
+<span title='2026-04-30 00:11:06 +0800 CST'>April 30, 2026</span>
 
 </div>
   </header> 
 
-  <div class="post-content md-content"><p>目前用于受体-配体结合模式预测的主流软件有两个：其一为商业软件Schrödinger Maestro，它工作流清晰、GUI完善；其二为开源软件AutoDock Vina，它专为“懒人”设计，无需考虑细枝末节即可快速完成预测。</p>
-<p>但我们可以发现，Maestro输出的自由能数据（<code>r_i_glide_energy</code>）与Vina输出的数据（<code>affinity</code>）差别很大。前者多在-7~-5kcal/mol，后者可达到最低-40kcal/mol，这对于包括我在内的初学者造成了一定困扰，到底谁才是真正的“结合自由能”？</p>
-<p>我通过MM/GBSA方法验证了HMOX1与大量小分子的结合自由能，结果显示其与Maestro的输出结果高度一致，这表明Vina所输出的<code>affinity</code>并不是结合自由能。</p>
-<p>通过查阅介绍Vina的文献<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>，我发现Vina所输出的<code>affinity</code>尽管拥有与自由能相同的计量单位“kcal/mol”，但并不是自由能，其在文章中如是说：</p>
-<blockquote>
-<p>We see our approach to the scoring function as more of ”machine learning” than directly physics-based in its nature. It is ultimately justified by its performance on test problems rather than by theoretical considerations following some, possibly too strong, approximating assumptions.</p>
-</blockquote>
-<p>也就是说，<code>affinity</code>是一个更偏向于“机器学习”的对接评分，而不是对自由能的物理计算。这个函数的推导结合了基于知识的势能和经验评分函数的某些优势，而这些优势是从受体-配体复合物的构象偏好和实验亲和力测量中提取得到的经验信息。</p>
-<p>而Maestro在使用Glide模块对接后，也会输出一个列名为<code>r_i_docking_score</code>的对接打分，这个打分同样是使用kcal/mol作为计量单位，同样与MM/GBSA预测到的结果大相径庭。Mastro在其用户手册关于Glide方法论的介绍中作了如下解释：</p>
-<blockquote>
-<p>The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are parametrized in this calibration: these terms should therefore not be interpreted as quantitative calculations of energies.</p>
-</blockquote>
-<p>也就是SP和XP GlideScore都已校准以重现某些实验结合亲和力。GlideScore 公式中的各个项（<code>Emodel</code>、<code>Ecoul</code>等）在校准中进行了参数化：因此这些项不应被解释为能量计算的定量结果。这就与Vina所提供的<code>affinity</code>很相似了。</p>
-<p>因此我们已经可以确定，Vina计算得到的<code>affinity</code>和Maestro计算得到的<code>GlideScore</code>尽管都使用了kcal/mol作为计量单位，但都是人为定义的经过参数化的评分函数，而不是物理（或化学）意义上的结合自由能。评分函数作为一个结合模式的评分参考，应当与结合自由能共同纳入考虑，作为早期虚拟筛选的排序指标。</p>
-<div class="footnotes" role="doc-endnotes">
-<hr>
-<ol>
-<li id="fn:1">
-<p>Trott O, Olson AJ. AutoDock Vina: improving the speed and accuracy of docking with a new scoring function, efficient optimization, and multithreading. J Comput Chem. 2010 Jan 30;31(2):455-61. doi: 10.1002/jcc.21334. PMID: 19499576; PMCID: PMC3041641.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
-</li>
-</ol>
-</div>
+  <div class="post-content md-content"><p>蛋白质-配体复合物是经常通过分子动力学研究的一类问题，这往往需要对小分子配体计算RESP电荷，经常有人问我应该取小分子的什么构象来计算、用不用先优化，我在这里统一说一下我的看法。</p>
+<p>原理上，最理想的算这种情况的配体的RESP电荷的做法是：对真实的复合物动力学轨迹每隔一定帧数提取一次小分子结构算RESP电荷（直接算单点任务得到波函数文件就够了），然后对所有帧取平均。这样得到的RESP电荷可以对动力学过程中配体与外环境的作用有均衡的描述，而且哪个构象出现概率越大，哪个构象对计算的RESP电荷起到的权重越大、被照顾得越充分。但是这么做不仅麻烦、耗时高，而且由于原本并不知道配体的原子电荷，动力学也没法跑。一个折中做法是先用比如ADCH、AM1-BCC这样对分子表面静电势重现性还不错的原子电荷作为配体的“初猜”电荷去跑复合物的动力学，然后计算各帧平均的配体的RESP电荷，再用新的配体的原子电荷跑复合物的动力学&hellip;反复如此，最后配体的原子电荷就能确定下来。但显然这么做太折腾、太费时了，而且由于一些随机性因素，还未必最后能收敛。</p>
+<p>如果你的蛋白-配体复合物是X光衍射测的，而且解析度较高，那么可以直接把配体抠出来，只对氢的位置用量子化学优化（为什么要这么做看《实验测定分子结构的方法以及将实验结构用于量子化学计算需要注意的问题》<a href="http://sobereva.com/569">http://sobereva.com/569</a>），然后算RESP电荷。这么做的合理性在于实验测的复合物中配体的构象是比较理想的结合状态，实际跑动力学的时候这种构象也应当是主导性的构象（假设模拟合理的话）。</p>
+<p>如果你的蛋白-配体复合物结构是分子对接得到的，那么这个结构里配体的构象的合理性极其有限，甚至可能有明显不合理之处，显然不适合直接拿这样的构象算RESP电荷（哪怕是对氢原子做优化后）。我的一般建议是：先以对接得到的结构为初猜结构做个常规的配体分子的几何优化，然后计算RESP电荷，之后跑复合物的动力学。如果发现动力学过程中配体与蛋白质结合的主要构象与之前优化出来的配体构象相差不大，那么原子电荷就不用重新算；如果相差很显著，说明之前算的RESP电荷可能对于描述蛋白-配体相互作用不够理想，此时对动力学轨迹做个簇分析得到最有代表性的复合物构象，在动力学程序里对复合物做个力场级别的能量极小化，然后把配体抠出来直接算RESP电荷（不再经过量子化学优化），将之作为正式的复合物模拟用的配体的原子电荷即可。</p>
+<p>本文摘自sobereva的博文<a href="URL" title="http://sobereva.com/441">RESP拟合静电势电荷的原理以及在Multiwfn中的计算</a>。</p>
 
 
   </div>
@@ -182,9 +159,13 @@ document.addEventListener("DOMContentLoaded", function() {
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/autodocktools-%E5%AF%BC%E5%85%A5%E5%89%8D%E5%A4%84%E7%90%86%E9%81%BF%E5%85%8D-pdbsdf-%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E5%BC%82%E5%B8%B8/">
+  <a class="prev" href="http://localhost:1313/posts/part1%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/">
     <span class="title">« Prev</span>
-    <span>AutoDockTools 导入前处理：避免 PDB/SDF 小分子键合异常</span>
+    <span>(Part1)如何让分子对接发挥出其该有的准确度？</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/chembl%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%ADmol%E6%96%87%E4%BB%B6%E7%9A%84%E8%8E%B7%E5%8F%96%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">
+    <span class="title">Next »</span>
+    <span>ChemBL数据库中mol文件的获取与使用方法</span>
   </a>
 </nav>
 
