@@ -1,6 +1,6 @@
 baseURL = 'https://learnfocus.cn/'
 locale = 'zh-cn'
-title = '学海云舟'
+title = '学海云舟·分子模拟|Linux·个人博客'
 theme = 'PaperMod'
 
 [pagination]
