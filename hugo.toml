@@ -8,7 +8,7 @@ paperSize = 5
 
 [params]
 defaultTheme = "auto"
-ShowReadingTime = true
+ShowReadingTime = false
 ShowCodeCopyButtons = true
 ShowPostNavLinks = true
 ShowBreadCrumbs = true
