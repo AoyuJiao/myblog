@@ -6,13 +6,61 @@
     <description>Recent content on 学海云舟</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 16 May 2026 13:01:00 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 17 May 2026 07:50:22 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>(Part1)如何让分子对接发挥出其该有的准确度？</title>
-      <link>http://localhost:1313/posts/part1%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/</link>
+      <title>GROMACS蛋白-小分子配体结合稳定性的讨论</title>
+      <link>http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E7%BB%93%E5%90%88%E7%A8%B3%E5%AE%9A%E6%80%A7%E7%9A%84%E8%AE%A8%E8%AE%BA/</link>
+      <pubDate>Sun, 17 May 2026 07:50:22 +0800</pubDate>
+      <guid>http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E7%BB%93%E5%90%88%E7%A8%B3%E5%AE%9A%E6%80%A7%E7%9A%84%E8%AE%A8%E8%AE%BA/</guid>
+      <description>&lt;p&gt;小分子配体或药物如何结合到蛋白的活性口袋上，一直是结构生物学和药理学津津乐道的话题。基于湿实验测定的方法，包括X射线晶体衍射法等，尽管直观可靠，但毕竟成本高昂、操作复杂，只能用于在确认药效后的实证而非一个探索手段。为解决此问题，计算机辅助药物设计（CADD）应运而生。得益于计算机计算能力的迅猛提升，通过模拟计算来研究结合过程和模式、药物设计、甚至面向整个小分子库的活性小分子挖掘成为可能。&lt;/p&gt;
+&lt;p&gt;CADD挖掘先导化合物的方法之一便是分子对接，其简单、高效，应用十分广泛。但其存在一个致命的缺点，即分子对接只能研究一个静态的结合过程，不能确认其结合的稳定性如何。分子动力学模拟可用于在一定程度上解决此问题，故本文我们讨论如何基于GROMACS的模拟结果了解蛋白-小分子配体结合的稳定性。&lt;/p&gt;
+&lt;h1 id=&#34;均方根偏差rmsd&#34;&gt;均方根偏差（RMSD）&lt;/h1&gt;
+&lt;p&gt;RMSD是一个数学概念，用来衡量两组值之间的平均相对偏差，且通过平方再开方的方式消除正负相消的问题。对于两组原子体系，其可被描述为：
+$$
+RMSD_{A,A_{0}}=\sqrt{\frac{\sum_{n=1}^{N}{(A_0 - \overline{A_{n}})^2} }{N} }
+$$
+其中，&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>GROMACS蛋白-小分子配体轨迹的预处理方法</title>
+      <link>http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E8%BD%A8%E8%BF%B9%E7%9A%84%E9%A2%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Sun, 17 May 2026 07:50:22 +0800</pubDate>
+      <guid>http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E8%BD%A8%E8%BF%B9%E7%9A%84%E9%A2%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/</guid>
+      <description>&lt;p&gt;GROMACS是一款以普适及高性能著称的分子动力学模拟程序，广泛用于各类分子动力学模拟任务。本文针对蛋白-小分子配体的模拟结果提出一种通用化的轨迹预处理方法，可以用于各类非膜蛋白体系以及包括&lt;code&gt;none&lt;/code&gt;，&lt;code&gt;linear&lt;/code&gt;，&lt;code&gt;angular&lt;/code&gt;等在内的各类平转动消除方法。&lt;/p&gt;
+&lt;p&gt;此预处理主要分成三个基本步骤，分别是时间连续、空间整理、清除平转动。以下假设工作目录中包含&lt;code&gt;md.xtc&lt;/code&gt;和&lt;code&gt;md.tpr&lt;/code&gt;两个生产动力学模拟结果，以及&lt;code&gt;index.ndx&lt;/code&gt;索引文件&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
+&lt;h2 id=&#34;时间连续化&#34;&gt;时间连续化&lt;/h2&gt;
+&lt;p&gt;此步骤用于消除周期性边界条件（PBC）所引起的边界跳跃，并使其紧凑。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;gmx trjconv -f md.xtc -s md.tpr -pbc nojump -ur compact -o step1_nojump.xtc
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如在后续要进行MM/PBSA等需要溶剂分子参与的活动，请选择输出&lt;code&gt;System&lt;/code&gt;组，否则可以只输出蛋白-小分子配体复合物，实现提升性能的目的。但GROMACS本身默认索引并不提供此复合物的原子组，所以需要在命令中额外引入&lt;code&gt;-n index.ndx&lt;/code&gt;索引文件，下同。&lt;/p&gt;
+&lt;h2 id=&#34;空间整理&#34;&gt;空间整理&lt;/h2&gt;
+&lt;p&gt;此步骤用于修复被PBC切断的分子，以及将复合物居中。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;gmx trjconv -f step1_nojump.xtc -s md.tpr -pbc mol -center -o step2_nojump.xtc
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;此处建议基于蛋白碳骨架（&lt;code&gt;C-alpha&lt;/code&gt;）而非整个蛋白（&lt;code&gt;Protein&lt;/code&gt;）或复合物进行居中计算。因为蛋白侧链波动幅度较大，可能会干扰计算；同时，蛋白骨架碳原子数量相比于全原子更少，可以提升计算速度。&lt;/p&gt;
+&lt;h2 id=&#34;消除平转动&#34;&gt;消除平转动&lt;/h2&gt;
+&lt;p&gt;如题，此步骤用于消除复合物的平转动。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;gmx trjconv -f step2_nojump.xtc -s md.tpr -fit rot+trans -o md_clean.xtc
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;此处同样推荐基于蛋白碳骨架（&lt;code&gt;C-alpha&lt;/code&gt;）而非整个蛋白（&lt;code&gt;Protein&lt;/code&gt;）或复合物进行消除平转动计算。&lt;/p&gt;
+&lt;h2 id=&#34;抽帧&#34;&gt;抽帧&lt;/h2&gt;
+&lt;p&gt;GROMACS默认的轨迹记录频率通常比较高，对于验证蛋白-小分子配体结合稳定性这样的需求，10ps的记录频率已经足够使用。此外，抽帧还可以提升帧之间的抽样独立性。&lt;/p&gt;
+&lt;p&gt;推荐大家在&lt;code&gt;.mdp&lt;/code&gt;文件中直接指定&lt;code&gt;nstxout-compressed = 5000&lt;/code&gt;，即可按10ps每帧的频率进行记录，无需在采样完成后进行额外处理。此外，对于原子数常小于10万的蛋白质水盒子体系，这个降低记录频率的举措也可用来降低PCIE数据传输量，提升模拟速度。&lt;/p&gt;
+&lt;p&gt;如果忘记在&lt;code&gt;.mdp&lt;/code&gt;文件中调整轨迹输出频率，可以按如下命令进行抽帧：&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;gmx trjconv -f md_clean.xtc -s md.tpr -dt 10 -o md10.xtc
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;其中&lt;code&gt;-dt&lt;/code&gt;参数定义了帧间隔，单位为ps.如果用于MM/PBSA或GBSA计算，此间隔可以被放宽至100ps甚至更多。&lt;/p&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
+&lt;p&gt;目前针对蛋白-小分子配体复合物的模拟任务，V-rescale是已知最好的热浴方法，但仍未解决其从Berendsen遗传过来的&amp;quot;Flying Ice Cube&amp;quot;问题，也就是仍需要对溶质和溶剂进行分组控温，此&lt;code&gt;.ndx&lt;/code&gt;索引文件就是为了定义复合物原子组，并将其作为溶质。如果你在模拟时没有分组控温，请先评估模拟结果的物理合理性。&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description>
+    </item>
+    <item>
+      <title>如何让分子对接发挥出其该有的准确度？</title>
+      <link>http://localhost:1313/posts/%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/</link>
       <pubDate>Sat, 16 May 2026 13:01:00 +0800</pubDate>
-      <guid>http://localhost:1313/posts/part1%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/</guid>
+      <guid>http://localhost:1313/posts/%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/</guid>
       <description>&lt;p&gt;最近读到了一篇在Nature Machine Intelligence上发表的一篇研究文章，其自定义了一个全新的测试集，并测试了现今常见的一些分子对接工具的性能。&lt;/p&gt;
 &lt;p&gt;分子对接可以作为蛋白-小分子结合模式研究的任一站。一方面，依托于诸如RCSB PDB的生物大分子数据库和海量小分子库，通过逐步提高对接精度，可以实现在药物设计中对先导化合物的逐级筛选；另一方面，研究中解析出的蛋白结构，也可通过高精度分子对接探索其结合模式。其简单、方便、经济，深受生命科学研究人员的青睐。&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;一些对接工具的精度测试&#34; loading=&#34;lazy&#34; src=&#34;http://localhost:1313/images/%E4%B8%80%E4%BA%9B%E5%AF%B9%E6%8E%A5%E5%B7%A5%E5%85%B7%E7%9A%84%E7%B2%BE%E5%BA%A6%E6%B5%8B%E8%AF%95.webp&#34;&gt;&lt;/p&gt;
@@ -26,15 +74,15 @@
 &lt;p&gt;&lt;em&gt;（未完待续）&lt;/em&gt;&lt;/p&gt;</description>
     </item>
     <item>
-      <title>【学习笔记】蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法</title>
-      <link>http://localhost:1313/posts/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/</link>
+      <title>蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法</title>
+      <link>http://localhost:1313/posts/%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/</link>
       <pubDate>Thu, 30 Apr 2026 00:11:06 +0800</pubDate>
-      <guid>http://localhost:1313/posts/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/</guid>
+      <guid>http://localhost:1313/posts/%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/</guid>
       <description>&lt;p&gt;蛋白质-配体复合物是经常通过分子动力学研究的一类问题，这往往需要对小分子配体计算RESP电荷，经常有人问我应该取小分子的什么构象来计算、用不用先优化，我在这里统一说一下我的看法。&lt;/p&gt;
 &lt;p&gt;原理上，最理想的算这种情况的配体的RESP电荷的做法是：对真实的复合物动力学轨迹每隔一定帧数提取一次小分子结构算RESP电荷（直接算单点任务得到波函数文件就够了），然后对所有帧取平均。这样得到的RESP电荷可以对动力学过程中配体与外环境的作用有均衡的描述，而且哪个构象出现概率越大，哪个构象对计算的RESP电荷起到的权重越大、被照顾得越充分。但是这么做不仅麻烦、耗时高，而且由于原本并不知道配体的原子电荷，动力学也没法跑。一个折中做法是先用比如ADCH、AM1-BCC这样对分子表面静电势重现性还不错的原子电荷作为配体的“初猜”电荷去跑复合物的动力学，然后计算各帧平均的配体的RESP电荷，再用新的配体的原子电荷跑复合物的动力学&amp;hellip;反复如此，最后配体的原子电荷就能确定下来。但显然这么做太折腾、太费时了，而且由于一些随机性因素，还未必最后能收敛。&lt;/p&gt;
 &lt;p&gt;如果你的蛋白-配体复合物是X光衍射测的，而且解析度较高，那么可以直接把配体抠出来，只对氢的位置用量子化学优化（为什么要这么做看《实验测定分子结构的方法以及将实验结构用于量子化学计算需要注意的问题》&lt;a href=&#34;http://sobereva.com/569&#34;&gt;http://sobereva.com/569&lt;/a&gt;），然后算RESP电荷。这么做的合理性在于实验测的复合物中配体的构象是比较理想的结合状态，实际跑动力学的时候这种构象也应当是主导性的构象（假设模拟合理的话）。&lt;/p&gt;
 &lt;p&gt;如果你的蛋白-配体复合物结构是分子对接得到的，那么这个结构里配体的构象的合理性极其有限，甚至可能有明显不合理之处，显然不适合直接拿这样的构象算RESP电荷（哪怕是对氢原子做优化后）。我的一般建议是：先以对接得到的结构为初猜结构做个常规的配体分子的几何优化，然后计算RESP电荷，之后跑复合物的动力学。如果发现动力学过程中配体与蛋白质结合的主要构象与之前优化出来的配体构象相差不大，那么原子电荷就不用重新算；如果相差很显著，说明之前算的RESP电荷可能对于描述蛋白-配体相互作用不够理想，此时对动力学轨迹做个簇分析得到最有代表性的复合物构象，在动力学程序里对复合物做个力场级别的能量极小化，然后把配体抠出来直接算RESP电荷（不再经过量子化学优化），将之作为正式的复合物模拟用的配体的原子电荷即可。&lt;/p&gt;
-&lt;p&gt;本文摘自sobereva的博文&lt;a href=&#34;URL&#34; title=&#34;http://sobereva.com/441&#34;&gt;RESP拟合静电势电荷的原理以及在Multiwfn中的计算&lt;/a&gt;。&lt;/p&gt;</description>
+&lt;p&gt;本文摘自sobereva的博文&lt;a href=&#34;http://sobereva.com/441&#34;&gt;RESP拟合静电势电荷的原理以及在Multiwfn中的计算&lt;/a&gt;。&lt;/p&gt;</description>
     </item>
     <item>
       <title>ChemBL数据库中mol文件的获取与使用方法</title>
@@ -50,7 +98,7 @@
 &lt;p&gt;为解决该问题，可将mol文件导入Chem3D软件，执行“MM2 Minimize”进行能量最小化计算。&lt;/p&gt;
 &lt;p&gt;&lt;img alt=&#34;Chem3D软件的工具栏.webp&#34; loading=&#34;lazy&#34; src=&#34;http://localhost:1313/images/Chem3D%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%B7%A5%E5%85%B7%E6%A0%8F.webp&#34;&gt;&lt;/p&gt;
 &lt;p&gt;该算法将自动优化分子构象至能量最低状态，之后可将结果保存为支持三维结构信息的.sdf文件。&lt;/p&gt;
-&lt;p&gt;详细操作视频可参考&lt;a href=&#34;URL&#34; title=&#34;https://weixin.qq.com/sph/AwSZKe3DU&#34;&gt;此微信视频号内容&lt;/a&gt;。&lt;/p&gt;</description>
+&lt;p&gt;详细操作视频可参考&lt;a href=&#34;https://weixin.qq.com/sph/AwSZKe3DU&#34;&gt;此微信视频号内容&lt;/a&gt;。&lt;/p&gt;</description>
     </item>
     <item>
       <title>AutoDockTools 导入前处理：避免 PDB/SDF 小分子键合异常</title>

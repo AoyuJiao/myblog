@@ -132,7 +132,51 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <article class="post-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">(Part1)如何让分子对接发挥出其该有的准确度？
+    <h2 class="entry-hint-parent">GROMACS蛋白-小分子配体结合稳定性的讨论
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>小分子配体或药物如何结合到蛋白的活性口袋上，一直是结构生物学和药理学津津乐道的话题。基于湿实验测定的方法，包括X射线晶体衍射法等，尽管直观可靠，但毕竟成本高昂、操作复杂，只能用于在确认药效后的实证而非一个探索手段。为解决此问题，计算机辅助药物设计（CADD）应运而生。得益于计算机计算能力的迅猛提升，通过模拟计算来研究结合过程和模式、药物设计、甚至面向整个小分子库的活性小分子挖掘成为可能。
+CADD挖掘先导化合物的方法之一便是分子对接，其简单、高效，应用十分广泛。但其存在一个致命的缺点，即分子对接只能研究一个静态的结合过程，不能确认其结合的稳定性如何。分子动力学模拟可用于在一定程度上解决此问题，故本文我们讨论如何基于GROMACS的模拟结果了解蛋白-小分子配体结合的稳定性。
+均方根偏差（RMSD） RMSD是一个数学概念，用来衡量两组值之间的平均相对偏差，且通过平方再开方的方式消除正负相消的问题。对于两组原子体系，其可被描述为： $$ RMSD_{A,A_{0}}=\sqrt{\frac{\sum_{n=1}^{N}{(A_0 - \overline{A_{n}})^2} }{N} } $$ 其中，
+</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-17 07:50:22 +0800 CST'>May 17, 2026</span></footer>
+  <a class="entry-link" aria-label="post link to GROMACS蛋白-小分子配体结合稳定性的讨论" href="http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E7%BB%93%E5%90%88%E7%A8%B3%E5%AE%9A%E6%80%A7%E7%9A%84%E8%AE%A8%E8%AE%BA/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">GROMACS蛋白-小分子配体轨迹的预处理方法
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>GROMACS是一款以普适及高性能著称的分子动力学模拟程序，广泛用于各类分子动力学模拟任务。本文针对蛋白-小分子配体的模拟结果提出一种通用化的轨迹预处理方法，可以用于各类非膜蛋白体系以及包括none，linear，angular等在内的各类平转动消除方法。
+此预处理主要分成三个基本步骤，分别是时间连续、空间整理、清除平转动。以下假设工作目录中包含md.xtc和md.tpr两个生产动力学模拟结果，以及index.ndx索引文件1。
+时间连续化 此步骤用于消除周期性边界条件（PBC）所引起的边界跳跃，并使其紧凑。
+gmx trjconv -f md.xtc -s md.tpr -pbc nojump -ur compact -o step1_nojump.xtc 如在后续要进行MM/PBSA等需要溶剂分子参与的活动，请选择输出System组，否则可以只输出蛋白-小分子配体复合物，实现提升性能的目的。但GROMACS本身默认索引并不提供此复合物的原子组，所以需要在命令中额外引入-n index.ndx索引文件，下同。
+空间整理 此步骤用于修复被PBC切断的分子，以及将复合物居中。
+gmx trjconv -f step1_nojump.xtc -s md.tpr -pbc mol -center -o step2_nojump.xtc 此处建议基于蛋白碳骨架（C-alpha）而非整个蛋白（Protein）或复合物进行居中计算。因为蛋白侧链波动幅度较大，可能会干扰计算；同时，蛋白骨架碳原子数量相比于全原子更少，可以提升计算速度。
+消除平转动 如题，此步骤用于消除复合物的平转动。
+gmx trjconv -f step2_nojump.xtc -s md.tpr -fit rot&#43;trans -o md_clean.xtc 此处同样推荐基于蛋白碳骨架（C-alpha）而非整个蛋白（Protein）或复合物进行消除平转动计算。
+抽帧 GROMACS默认的轨迹记录频率通常比较高，对于验证蛋白-小分子配体结合稳定性这样的需求，10ps的记录频率已经足够使用。此外，抽帧还可以提升帧之间的抽样独立性。
+推荐大家在.mdp文件中直接指定nstxout-compressed = 5000，即可按10ps每帧的频率进行记录，无需在采样完成后进行额外处理。此外，对于原子数常小于10万的蛋白质水盒子体系，这个降低记录频率的举措也可用来降低PCIE数据传输量，提升模拟速度。
+如果忘记在.mdp文件中调整轨迹输出频率，可以按如下命令进行抽帧：
+gmx trjconv -f md_clean.xtc -s md.tpr -dt 10 -o md10.xtc 其中-dt参数定义了帧间隔，单位为ps.如果用于MM/PBSA或GBSA计算，此间隔可以被放宽至100ps甚至更多。
+目前针对蛋白-小分子配体复合物的模拟任务，V-rescale是已知最好的热浴方法，但仍未解决其从Berendsen遗传过来的&#34;Flying Ice Cube&#34;问题，也就是仍需要对溶质和溶剂进行分组控温，此.ndx索引文件就是为了定义复合物原子组，并将其作为溶质。如果你在模拟时没有分组控温，请先评估模拟结果的物理合理性。 ↩︎
+</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-05-17 07:50:22 +0800 CST'>May 17, 2026</span></footer>
+  <a class="entry-link" aria-label="post link to GROMACS蛋白-小分子配体轨迹的预处理方法" href="http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E8%BD%A8%E8%BF%B9%E7%9A%84%E9%A2%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">如何让分子对接发挥出其该有的准确度？
     </h2>
   </header>
   <div class="entry-content">
@@ -150,12 +194,12 @@ document.addEventListener("DOMContentLoaded", function() {
   <footer class="entry-footer">
 
 <span title='2026-05-16 13:01:00 +0800 CST'>May 16, 2026</span></footer>
-  <a class="entry-link" aria-label="post link to (Part1)如何让分子对接发挥出其该有的准确度？" href="http://localhost:1313/posts/part1%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/"></a>
+  <a class="entry-link" aria-label="post link to 如何让分子对接发挥出其该有的准确度？" href="http://localhost:1313/posts/%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/"></a>
 </article>
 
 <article class="post-entry"> 
   <header class="entry-header">
-    <h2 class="entry-hint-parent">【学习笔记】蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法
+    <h2 class="entry-hint-parent">蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法
     </h2>
   </header>
   <div class="entry-content">
@@ -169,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function() {
   <footer class="entry-footer">
 
 <span title='2026-04-30 00:11:06 +0800 CST'>April 30, 2026</span></footer>
-  <a class="entry-link" aria-label="post link to 【学习笔记】蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法" href="http://localhost:1313/posts/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/"></a>
+  <a class="entry-link" aria-label="post link to 蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法" href="http://localhost:1313/posts/%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/"></a>
 </article>
 
 <article class="post-entry"> 

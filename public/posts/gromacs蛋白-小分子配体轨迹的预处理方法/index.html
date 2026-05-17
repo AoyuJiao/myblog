@@ -5,20 +5,38 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>ChemBL数据库中mol文件的获取与使用方法 | 学海云舟</title>
+<title>GROMACS蛋白-小分子配体轨迹的预处理方法 | 学海云舟</title>
 <meta name="keywords" content="">
-<meta name="description" content="目前，全球规模最大的开放化学数据库是PubChem。然而，由于网络访问限制，国内用户有时无法正常使用该数据库，此时ChemBL便成为一个理想的替代选择。与PubChem不同，ChemBL并未在页面上直接提供结构文件下载按钮，这给不少用户带来操作上的困扰。本文将详细介绍如何在ChemBL中获取小分子的mol文件。
-操作步骤如下：在ChemBL网站中搜索目标小分子，进入其详情页后，向下滚动至“Representations”栏目
+<meta name="description" content="GROMACS是一款以普适及高性能著称的分子动力学模拟程序，广泛用于各类分子动力学模拟任务。本文针对蛋白-小分子配体的模拟结果提出一种通用化的轨迹预处理方法，可以用于各类非膜蛋白体系以及包括none，linear，angular等在内的各类平转动消除方法。
+此预处理主要分成三个基本步骤，分别是时间连续、空间整理、清除平转动。以下假设工作目录中包含md.xtc和md.tpr两个生产动力学模拟结果，以及index.ndx索引文件1。
+时间连续化
+此步骤用于消除周期性边界条件（PBC）所引起的边界跳跃，并使其紧凑。
+gmx trjconv -f md.xtc -s md.tpr -pbc nojump -ur compact -o step1_nojump.xtc
+如在后续要进行MM/PBSA等需要溶剂分子参与的活动，请选择输出System组，否则可以只输出蛋白-小分子配体复合物，实现提升性能的目的。但GROMACS本身默认索引并不提供此复合物的原子组，所以需要在命令中额外引入-n index.ndx索引文件，下同。
+空间整理
+此步骤用于修复被PBC切断的分子，以及将复合物居中。
+gmx trjconv -f step1_nojump.xtc -s md.tpr -pbc mol -center -o step2_nojump.xtc
+此处建议基于蛋白碳骨架（C-alpha）而非整个蛋白（Protein）或复合物进行居中计算。因为蛋白侧链波动幅度较大，可能会干扰计算；同时，蛋白骨架碳原子数量相比于全原子更少，可以提升计算速度。
+消除平转动
+如题，此步骤用于消除复合物的平转动。
+gmx trjconv -f step2_nojump.xtc -s md.tpr -fit rot&#43;trans -o md_clean.xtc
+此处同样推荐基于蛋白碳骨架（C-alpha）而非整个蛋白（Protein）或复合物进行消除平转动计算。
+抽帧
+GROMACS默认的轨迹记录频率通常比较高，对于验证蛋白-小分子配体结合稳定性这样的需求，10ps的记录频率已经足够使用。此外，抽帧还可以提升帧之间的抽样独立性。
+推荐大家在.mdp文件中直接指定nstxout-compressed = 5000，即可按10ps每帧的频率进行记录，无需在采样完成后进行额外处理。此外，对于原子数常小于10万的蛋白质水盒子体系，这个降低记录频率的举措也可用来降低PCIE数据传输量，提升模拟速度。
+如果忘记在.mdp文件中调整轨迹输出频率，可以按如下命令进行抽帧：
+gmx trjconv -f md_clean.xtc -s md.tpr -dt 10 -o md10.xtc
+其中-dt参数定义了帧间隔，单位为ps.如果用于MM/PBSA或GBSA计算，此间隔可以被放宽至100ps甚至更多。
 
-默认情况下，mol文件内容处于隐藏状态，点击“SHOW”即可展开显示。用户也可以直接点击“COPY TO CLIPBOARD”将mol文本内容复制到剪贴板。由于mol文件本质上是文本格式，接下来可在计算机上新建一个文本文件，将其命名为“分子名称.mol”，使用记事本打开该文件，粘贴之前复制的文本内容，保存后即可得到对应的.mol文件。
-需要注意的是，mol文件无法保存小分子的三维结构信息，因此可能出现键合正确但三维构型错误的情况：
 
-为解决该问题，可将mol文件导入Chem3D软件，执行“MM2 Minimize”进行能量最小化计算。
 
-该算法将自动优化分子构象至能量最低状态，之后可将结果保存为支持三维结构信息的.sdf文件。
-详细操作视频可参考此微信视频号内容。">
+
+目前针对蛋白-小分子配体复合物的模拟任务，V-rescale是已知最好的热浴方法，但仍未解决其从Berendsen遗传过来的&quot;Flying Ice Cube&quot;问题，也就是仍需要对溶质和溶剂进行分组控温，此.ndx索引文件就是为了定义复合物原子组，并将其作为溶质。如果你在模拟时没有分组控温，请先评估模拟结果的物理合理性。&#160;&#x21a9;&#xfe0e;
+
+
+">
 <meta name="author" content="">
-<link rel="canonical" href="http://localhost:1313/posts/chembl%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%ADmol%E6%96%87%E4%BB%B6%E7%9A%84%E8%8E%B7%E5%8F%96%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">
+<link rel="canonical" href="http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E8%BD%A8%E8%BF%B9%E7%9A%84%E9%A2%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.25d21dbd4307f87f912c584b8648099485bcc042471b9136f46be3e5612ddd02.css" integrity="sha256-JdIdvUMH&#43;H&#43;RLFhLhkgJlIW8wEJHG5E29Gvj5WEt3QI=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
@@ -27,7 +45,7 @@
 <link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/chembl%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%ADmol%E6%96%87%E4%BB%B6%E7%9A%84%E8%8E%B7%E5%8F%96%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E8%BD%A8%E8%BF%B9%E7%9A%84%E9%A2%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/">
 <noscript>
     <style>
         #theme-toggle,
@@ -142,25 +160,60 @@ document.addEventListener("DOMContentLoaded", function() {
     </svg>
 </nav>
     <h1 class="post-title entry-hint-parent">
-      ChemBL数据库中mol文件的获取与使用方法
+      GROMACS蛋白-小分子配体轨迹的预处理方法
     </h1>
     <div class="post-meta">
 
-<span title='2025-09-29 00:19:22 +0800 CST'>September 29, 2025</span>
+<span title='2026-05-17 07:50:22 +0800 CST'>May 17, 2026</span>
 
 </div>
-  </header> 
+  </header> <details class="toc" >
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
 
-  <div class="post-content md-content"><p>目前，全球规模最大的开放化学数据库是PubChem。然而，由于网络访问限制，国内用户有时无法正常使用该数据库，此时ChemBL便成为一个理想的替代选择。与PubChem不同，ChemBL并未在页面上直接提供结构文件下载按钮，这给不少用户带来操作上的困扰。本文将详细介绍如何在ChemBL中获取小分子的mol文件。</p>
-<p>操作步骤如下：在ChemBL网站中搜索目标小分子，进入其详情页后，向下滚动至“Representations”栏目</p>
-<p><img alt="ChemBL的Representations栏目.webp" loading="lazy" src="/images/ChemBL%E7%9A%84Representations%E6%A0%8F%E7%9B%AE.webp"></p>
-<p>默认情况下，mol文件内容处于隐藏状态，点击“SHOW”即可展开显示。用户也可以直接点击“COPY TO CLIPBOARD”将mol文本内容复制到剪贴板。由于mol文件本质上是文本格式，接下来可在计算机上新建一个文本文件，将其命名为“分子名称.mol”，使用记事本打开该文件，粘贴之前复制的文本内容，保存后即可得到对应的.mol文件。</p>
-<p>需要注意的是，mol文件无法保存小分子的三维结构信息，因此可能出现键合正确但三维构型错误的情况：</p>
-<p><img alt="小分子键合正确但三维结构错误.webp" loading="lazy" src="/images/%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E6%AD%A3%E7%A1%AE%E4%BD%86%E4%B8%89%E7%BB%B4%E7%BB%93%E6%9E%84%E9%94%99%E8%AF%AF.webp"></p>
-<p>为解决该问题，可将mol文件导入Chem3D软件，执行“MM2 Minimize”进行能量最小化计算。</p>
-<p><img alt="Chem3D软件的工具栏.webp" loading="lazy" src="/images/Chem3D%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%B7%A5%E5%85%B7%E6%A0%8F.webp"></p>
-<p>该算法将自动优化分子构象至能量最低状态，之后可将结果保存为支持三维结构信息的.sdf文件。</p>
-<p>详细操作视频可参考<a href="https://weixin.qq.com/sph/AwSZKe3DU">此微信视频号内容</a>。</p>
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e6%97%b6%e9%97%b4%e8%bf%9e%e7%bb%ad%e5%8c%96" aria-label="时间连续化">时间连续化</a></li>
+            <li>
+                <a href="#%e7%a9%ba%e9%97%b4%e6%95%b4%e7%90%86" aria-label="空间整理">空间整理</a></li>
+            <li>
+                <a href="#%e6%b6%88%e9%99%a4%e5%b9%b3%e8%bd%ac%e5%8a%a8" aria-label="消除平转动">消除平转动</a></li>
+            <li>
+                <a href="#%e6%8a%bd%e5%b8%a7" aria-label="抽帧">抽帧</a>
+            </li>
+        </ul>
+    </div>
+</details>
+
+  <div class="post-content md-content"><p>GROMACS是一款以普适及高性能著称的分子动力学模拟程序，广泛用于各类分子动力学模拟任务。本文针对蛋白-小分子配体的模拟结果提出一种通用化的轨迹预处理方法，可以用于各类非膜蛋白体系以及包括<code>none</code>，<code>linear</code>，<code>angular</code>等在内的各类平转动消除方法。</p>
+<p>此预处理主要分成三个基本步骤，分别是时间连续、空间整理、清除平转动。以下假设工作目录中包含<code>md.xtc</code>和<code>md.tpr</code>两个生产动力学模拟结果，以及<code>index.ndx</code>索引文件<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。</p>
+<h2 id="时间连续化">时间连续化<a hidden class="anchor" aria-hidden="true" href="#时间连续化">#</a></h2>
+<p>此步骤用于消除周期性边界条件（PBC）所引起的边界跳跃，并使其紧凑。</p>
+<pre tabindex="0"><code>gmx trjconv -f md.xtc -s md.tpr -pbc nojump -ur compact -o step1_nojump.xtc
+</code></pre><p>如在后续要进行MM/PBSA等需要溶剂分子参与的活动，请选择输出<code>System</code>组，否则可以只输出蛋白-小分子配体复合物，实现提升性能的目的。但GROMACS本身默认索引并不提供此复合物的原子组，所以需要在命令中额外引入<code>-n index.ndx</code>索引文件，下同。</p>
+<h2 id="空间整理">空间整理<a hidden class="anchor" aria-hidden="true" href="#空间整理">#</a></h2>
+<p>此步骤用于修复被PBC切断的分子，以及将复合物居中。</p>
+<pre tabindex="0"><code>gmx trjconv -f step1_nojump.xtc -s md.tpr -pbc mol -center -o step2_nojump.xtc
+</code></pre><p>此处建议基于蛋白碳骨架（<code>C-alpha</code>）而非整个蛋白（<code>Protein</code>）或复合物进行居中计算。因为蛋白侧链波动幅度较大，可能会干扰计算；同时，蛋白骨架碳原子数量相比于全原子更少，可以提升计算速度。</p>
+<h2 id="消除平转动">消除平转动<a hidden class="anchor" aria-hidden="true" href="#消除平转动">#</a></h2>
+<p>如题，此步骤用于消除复合物的平转动。</p>
+<pre tabindex="0"><code>gmx trjconv -f step2_nojump.xtc -s md.tpr -fit rot+trans -o md_clean.xtc
+</code></pre><p>此处同样推荐基于蛋白碳骨架（<code>C-alpha</code>）而非整个蛋白（<code>Protein</code>）或复合物进行消除平转动计算。</p>
+<h2 id="抽帧">抽帧<a hidden class="anchor" aria-hidden="true" href="#抽帧">#</a></h2>
+<p>GROMACS默认的轨迹记录频率通常比较高，对于验证蛋白-小分子配体结合稳定性这样的需求，10ps的记录频率已经足够使用。此外，抽帧还可以提升帧之间的抽样独立性。</p>
+<p>推荐大家在<code>.mdp</code>文件中直接指定<code>nstxout-compressed = 5000</code>，即可按10ps每帧的频率进行记录，无需在采样完成后进行额外处理。此外，对于原子数常小于10万的蛋白质水盒子体系，这个降低记录频率的举措也可用来降低PCIE数据传输量，提升模拟速度。</p>
+<p>如果忘记在<code>.mdp</code>文件中调整轨迹输出频率，可以按如下命令进行抽帧：</p>
+<pre tabindex="0"><code>gmx trjconv -f md_clean.xtc -s md.tpr -dt 10 -o md10.xtc
+</code></pre><p>其中<code>-dt</code>参数定义了帧间隔，单位为ps.如果用于MM/PBSA或GBSA计算，此间隔可以被放宽至100ps甚至更多。</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>目前针对蛋白-小分子配体复合物的模拟任务，V-rescale是已知最好的热浴方法，但仍未解决其从Berendsen遗传过来的&quot;Flying Ice Cube&quot;问题，也就是仍需要对溶质和溶剂进行分组控温，此<code>.ndx</code>索引文件就是为了定义复合物原子组，并将其作为溶质。如果你在模拟时没有分组控温，请先评估模拟结果的物理合理性。&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
 
 
   </div>
@@ -169,13 +222,13 @@ document.addEventListener("DOMContentLoaded", function() {
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/">
+  <a class="prev" href="http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E7%BB%93%E5%90%88%E7%A8%B3%E5%AE%9A%E6%80%A7%E7%9A%84%E8%AE%A8%E8%AE%BA/">
     <span class="title">« Prev</span>
-    <span>蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法</span>
+    <span>GROMACS蛋白-小分子配体结合稳定性的讨论</span>
   </a>
-  <a class="next" href="http://localhost:1313/posts/autodocktools-%E5%AF%BC%E5%85%A5%E5%89%8D%E5%A4%84%E7%90%86%E9%81%BF%E5%85%8D-pdbsdf-%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E5%BC%82%E5%B8%B8/">
+  <a class="next" href="http://localhost:1313/posts/%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/">
     <span class="title">Next »</span>
-    <span>AutoDockTools 导入前处理：避免 PDB/SDF 小分子键合异常</span>
+    <span>如何让分子对接发挥出其该有的准确度？</span>
   </a>
 </nav>
 

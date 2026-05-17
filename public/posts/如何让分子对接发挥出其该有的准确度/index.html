@@ -5,20 +5,21 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>ChemBL数据库中mol文件的获取与使用方法 | 学海云舟</title>
+<title>如何让分子对接发挥出其该有的准确度？ | 学海云舟</title>
 <meta name="keywords" content="">
-<meta name="description" content="目前，全球规模最大的开放化学数据库是PubChem。然而，由于网络访问限制，国内用户有时无法正常使用该数据库，此时ChemBL便成为一个理想的替代选择。与PubChem不同，ChemBL并未在页面上直接提供结构文件下载按钮，这给不少用户带来操作上的困扰。本文将详细介绍如何在ChemBL中获取小分子的mol文件。
-操作步骤如下：在ChemBL网站中搜索目标小分子，进入其详情页后，向下滚动至“Representations”栏目
+<meta name="description" content="最近读到了一篇在Nature Machine Intelligence上发表的一篇研究文章，其自定义了一个全新的测试集，并测试了现今常见的一些分子对接工具的性能。
+分子对接可以作为蛋白-小分子结合模式研究的任一站。一方面，依托于诸如RCSB PDB的生物大分子数据库和海量小分子库，通过逐步提高对接精度，可以实现在药物设计中对先导化合物的逐级筛选；另一方面，研究中解析出的蛋白结构，也可通过高精度分子对接探索其结合模式。其简单、方便、经济，深受生命科学研究人员的青睐。
 
-默认情况下，mol文件内容处于隐藏状态，点击“SHOW”即可展开显示。用户也可以直接点击“COPY TO CLIPBOARD”将mol文本内容复制到剪贴板。由于mol文件本质上是文本格式，接下来可在计算机上新建一个文本文件，将其命名为“分子名称.mol”，使用记事本打开该文件，粘贴之前复制的文本内容，保存后即可得到对应的.mol文件。
-需要注意的是，mol文件无法保存小分子的三维结构信息，因此可能出现键合正确但三维构型错误的情况：
+上图是此文中各工具的测试结果之一，可以看到大部分工具的误差都可以控制在几埃米以内。但很多时候我们得到的结果却与实验结论大相径庭，其原因如何？
+很多分子对接的教程，只讲述了一个套路化的步骤，也就是只保证预测出结果。但很显然，蛋白结构千变万化，势必不可能有一个套路化的方法覆盖所有的蛋白。那些针对诸如盲对接，或甚至连蛋白结构都靠预测（AF3）的办法，只是在实验结构空白时的下下策。
+我认为，分子对接同其他分子结合模式的研究一样，一定要建立在充分了解受体蛋白结构的基础上。现今很多蛋白都已有大量的文献研究，而这些教程却不讲如何利用之，完全抛开文献去做对接，那结果怎么会准确？
+若要改进现有的分子对接教程，有三个步骤对结果准确性的影响很大：①受体结构的选择。②结构预处理方法。③口袋（对接盒子）的设置。这三个步骤所需要的正是充分的文献挖掘。注意：以下内容基于你已经充分了解此蛋白结构的前提，如果还没有，请至少要先读一下这个蛋白结构的综述文章，来有一个初步了解。
+首先说受体结构的选择：同一个蛋白，RCSB PDB数据库可能有数百条收录，到底要选择哪个？我们需要知道的是，这个数据库每条收录的背后都一篇文章，所以读一读这个文章，一定可以获得最大量的信息。但这个读文章来筛选的方法也不现实，需要一个粗筛的方法。因为PDB数据库的列表界面会画出结构的三维示意图，可以看看是否包括自己要用的部分。
 
-为解决该问题，可将mol文件导入Chem3D软件，执行“MM2 Minimize”进行能量最小化计算。
-
-该算法将自动优化分子构象至能量最低状态，之后可将结果保存为支持三维结构信息的.sdf文件。
-详细操作视频可参考此微信视频号内容。">
+如图是TGFBR1(PAI-1)的整体结构，可见其由三部分组成。作为一个跨膜受体，其中间的部分是跨膜螺旋，而右侧是膜内的区域，也是功能区域。所以，可以看到大部分抑制剂都是针对这个膜内区域展开研究，其他的两个部分甚至连其结构都鲜有报道。因此在PDB数据库中挑选结构时，只要包含这个胞内部分就足够了。
+（未完待续）">
 <meta name="author" content="">
-<link rel="canonical" href="http://localhost:1313/posts/chembl%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%ADmol%E6%96%87%E4%BB%B6%E7%9A%84%E8%8E%B7%E5%8F%96%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">
+<link rel="canonical" href="http://localhost:1313/posts/%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.25d21dbd4307f87f912c584b8648099485bcc042471b9136f46be3e5612ddd02.css" integrity="sha256-JdIdvUMH&#43;H&#43;RLFhLhkgJlIW8wEJHG5E29Gvj5WEt3QI=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
@@ -27,7 +28,7 @@
 <link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/chembl%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%ADmol%E6%96%87%E4%BB%B6%E7%9A%84%E8%8E%B7%E5%8F%96%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/%E5%A6%82%E4%BD%95%E8%AE%A9%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E5%8F%91%E6%8C%A5%E5%87%BA%E5%85%B6%E8%AF%A5%E6%9C%89%E7%9A%84%E5%87%86%E7%A1%AE%E5%BA%A6/">
 <noscript>
     <style>
         #theme-toggle,
@@ -142,25 +143,26 @@ document.addEventListener("DOMContentLoaded", function() {
     </svg>
 </nav>
     <h1 class="post-title entry-hint-parent">
-      ChemBL数据库中mol文件的获取与使用方法
+      如何让分子对接发挥出其该有的准确度？
     </h1>
     <div class="post-meta">
 
-<span title='2025-09-29 00:19:22 +0800 CST'>September 29, 2025</span>
+<span title='2026-05-16 13:01:00 +0800 CST'>May 16, 2026</span>
 
 </div>
   </header> 
 
-  <div class="post-content md-content"><p>目前，全球规模最大的开放化学数据库是PubChem。然而，由于网络访问限制，国内用户有时无法正常使用该数据库，此时ChemBL便成为一个理想的替代选择。与PubChem不同，ChemBL并未在页面上直接提供结构文件下载按钮，这给不少用户带来操作上的困扰。本文将详细介绍如何在ChemBL中获取小分子的mol文件。</p>
-<p>操作步骤如下：在ChemBL网站中搜索目标小分子，进入其详情页后，向下滚动至“Representations”栏目</p>
-<p><img alt="ChemBL的Representations栏目.webp" loading="lazy" src="/images/ChemBL%E7%9A%84Representations%E6%A0%8F%E7%9B%AE.webp"></p>
-<p>默认情况下，mol文件内容处于隐藏状态，点击“SHOW”即可展开显示。用户也可以直接点击“COPY TO CLIPBOARD”将mol文本内容复制到剪贴板。由于mol文件本质上是文本格式，接下来可在计算机上新建一个文本文件，将其命名为“分子名称.mol”，使用记事本打开该文件，粘贴之前复制的文本内容，保存后即可得到对应的.mol文件。</p>
-<p>需要注意的是，mol文件无法保存小分子的三维结构信息，因此可能出现键合正确但三维构型错误的情况：</p>
-<p><img alt="小分子键合正确但三维结构错误.webp" loading="lazy" src="/images/%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E6%AD%A3%E7%A1%AE%E4%BD%86%E4%B8%89%E7%BB%B4%E7%BB%93%E6%9E%84%E9%94%99%E8%AF%AF.webp"></p>
-<p>为解决该问题，可将mol文件导入Chem3D软件，执行“MM2 Minimize”进行能量最小化计算。</p>
-<p><img alt="Chem3D软件的工具栏.webp" loading="lazy" src="/images/Chem3D%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%B7%A5%E5%85%B7%E6%A0%8F.webp"></p>
-<p>该算法将自动优化分子构象至能量最低状态，之后可将结果保存为支持三维结构信息的.sdf文件。</p>
-<p>详细操作视频可参考<a href="https://weixin.qq.com/sph/AwSZKe3DU">此微信视频号内容</a>。</p>
+  <div class="post-content md-content"><p>最近读到了一篇在Nature Machine Intelligence上发表的一篇研究文章，其自定义了一个全新的测试集，并测试了现今常见的一些分子对接工具的性能。</p>
+<p>分子对接可以作为蛋白-小分子结合模式研究的任一站。一方面，依托于诸如RCSB PDB的生物大分子数据库和海量小分子库，通过逐步提高对接精度，可以实现在药物设计中对先导化合物的逐级筛选；另一方面，研究中解析出的蛋白结构，也可通过高精度分子对接探索其结合模式。其简单、方便、经济，深受生命科学研究人员的青睐。</p>
+<p><img alt="一些对接工具的精度测试" loading="lazy" src="/images/%E4%B8%80%E4%BA%9B%E5%AF%B9%E6%8E%A5%E5%B7%A5%E5%85%B7%E7%9A%84%E7%B2%BE%E5%BA%A6%E6%B5%8B%E8%AF%95.webp"></p>
+<p>上图是此文中各工具的测试结果之一，可以看到大部分工具的误差都可以控制在几埃米以内。但很多时候我们得到的结果却与实验结论大相径庭，其原因如何？</p>
+<p>很多分子对接的教程，只讲述了一个套路化的步骤，也就是只保证预测出结果。但很显然，蛋白结构千变万化，势必不可能有一个套路化的方法覆盖所有的蛋白。那些针对诸如盲对接，或甚至连蛋白结构都靠预测（AF3）的办法，只是在实验结构空白时的下下策。</p>
+<p>我认为，分子对接同其他分子结合模式的研究一样，一定要建立在充分了解受体蛋白结构的基础上。现今很多蛋白都已有大量的文献研究，而这些教程却不讲如何利用之，完全抛开文献去做对接，那结果怎么会准确？</p>
+<p>若要改进现有的分子对接教程，有三个步骤对结果准确性的影响很大：①受体结构的选择。②结构预处理方法。③口袋（对接盒子）的设置。这三个步骤所需要的正是充分的文献挖掘。注意：以下内容基于你已经充分了解此蛋白结构的前提，如果还没有，请至少要先读一下这个蛋白结构的综述文章，来有一个初步了解。</p>
+<p>首先说受体结构的选择：同一个蛋白，RCSB PDB数据库可能有数百条收录，到底要选择哪个？我们需要知道的是，这个数据库每条收录的背后都一篇文章，所以读一读这个文章，一定可以获得最大量的信息。但这个读文章来筛选的方法也不现实，需要一个粗筛的方法。因为PDB数据库的列表界面会画出结构的三维示意图，可以看看是否包括自己要用的部分。</p>
+<p><img alt="TGFBR1的整体结构" loading="lazy" src="/images/TGFBR1%E7%9A%84%E6%95%B4%E4%BD%93%E7%BB%93%E6%9E%84.webp"></p>
+<p>如图是TGFBR1(PAI-1)的整体结构，可见其由三部分组成。作为一个跨膜受体，其中间的部分是跨膜螺旋，而右侧是膜内的区域，也是功能区域。所以，可以看到大部分抑制剂都是针对这个膜内区域展开研究，其他的两个部分甚至连其结构都鲜有报道。因此在PDB数据库中挑选结构时，只要包含这个胞内部分就足够了。</p>
+<p><em>（未完待续）</em></p>
 
 
   </div>
@@ -169,13 +171,13 @@ document.addEventListener("DOMContentLoaded", function() {
     <ul class="post-tags">
     </ul>
 <nav class="paginav">
-  <a class="prev" href="http://localhost:1313/posts/%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/">
+  <a class="prev" href="http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E8%BD%A8%E8%BF%B9%E7%9A%84%E9%A2%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/">
     <span class="title">« Prev</span>
-    <span>蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法</span>
+    <span>GROMACS蛋白-小分子配体轨迹的预处理方法</span>
   </a>
-  <a class="next" href="http://localhost:1313/posts/autodocktools-%E5%AF%BC%E5%85%A5%E5%89%8D%E5%A4%84%E7%90%86%E9%81%BF%E5%85%8D-pdbsdf-%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E5%BC%82%E5%B8%B8/">
+  <a class="next" href="http://localhost:1313/posts/%E8%9B%8B%E7%99%BD%E5%B0%8F%E5%88%86%E5%AD%90%E5%AF%B9%E6%8E%A5%E7%BB%93%E6%9E%9C%E7%94%A8%E4%BA%8E%E5%88%86%E5%AD%90%E5%8A%A8%E5%8A%9B%E5%AD%A6%E6%A8%A1%E6%8B%9F%E6%97%B6%E9%85%8D%E4%BD%93%E5%8E%9F%E5%AD%90%E7%94%B5%E8%8D%B7%E7%9A%84%E8%AE%A1%E7%AE%97%E6%96%B9%E6%B3%95/">
     <span class="title">Next »</span>
-    <span>AutoDockTools 导入前处理：避免 PDB/SDF 小分子键合异常</span>
+    <span>蛋白小分子对接结果用于分子动力学模拟时，配体原子电荷的计算方法</span>
   </a>
 </nav>
 
