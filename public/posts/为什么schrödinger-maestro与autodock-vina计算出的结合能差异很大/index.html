@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto" data-theme="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>为什么Schrödinger Maestro与AutoDock Vina计算出的“结合能”差异很大? | 学海云舟</title>
+<meta name="keywords" content="">
+<meta name="description" content="目前用于受体-配体结合模式预测的主流软件有两个：其一为商业软件Schrödinger Maestro，它工作流清晰、GUI完善；其二为开源软件AutoDock Vina，它专为“懒人”设计，无需考虑细枝末节即可快速完成预测。
+但我们可以发现，Maestro输出的自由能数据（r_i_glide_energy）与Vina输出的数据（affinity）差别很大。前者多在-7~-5kcal/mol，后者可达到最低-40kcal/mol，这对于包括我在内的初学者造成了一定困扰，到底谁才是真正的“结合自由能”？
+我通过MM/GBSA方法验证了HMOX1与大量小分子的结合自由能，结果显示其与Maestro的输出结果高度一致，这表明Vina所输出的affinity并不是结合自由能。
+通过查阅介绍Vina的文献1，我发现Vina所输出的affinity尽管拥有与自由能相同的计量单位“kcal/mol”，但并不是自由能，其在文章中如是说：
+
+We see our approach to the scoring function as more of ”machine learning” than directly physics-based in its nature. It is ultimately justified by its performance on test problems rather than by theoretical considerations following some, possibly too strong, approximating assumptions.
+
+也就是说，affinity是一个更偏向于“机器学习”的对接评分，而不是对自由能的物理计算。这个函数的推导结合了基于知识的势能和经验评分函数的某些优势，而这些优势是从受体-配体复合物的构象偏好和实验亲和力测量中提取得到的经验信息。
+而Maestro在使用Glide模块对接后，也会输出一个列名为r_i_docking_score的对接打分，这个打分同样是使用kcal/mol作为计量单位，同样与MM/GBSA预测到的结果大相径庭。Mastro在其用户手册关于Glide方法论的介绍中作了如下解释：
+
+The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are parametrized in this calibration: these terms should therefore not be interpreted as quantitative calculations of energies.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/%E4%B8%BA%E4%BB%80%E4%B9%88schr%C3%B6dinger-maestro%E4%B8%8Eautodock-vina%E8%AE%A1%E7%AE%97%E5%87%BA%E7%9A%84%E7%BB%93%E5%90%88%E8%83%BD%E5%B7%AE%E5%BC%82%E5%BE%88%E5%A4%A7/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.25d21dbd4307f87f912c584b8648099485bcc042471b9136f46be3e5612ddd02.css" integrity="sha256-JdIdvUMH&#43;H&#43;RLFhLhkgJlIW8wEJHG5E29Gvj5WEt3QI=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/%E4%B8%BA%E4%BB%80%E4%B9%88schr%C3%B6dinger-maestro%E4%B8%8Eautodock-vina%E8%AE%A1%E7%AE%97%E5%87%BA%E7%9A%84%E7%BB%93%E5%90%88%E8%83%BD%E5%B7%AE%E5%BC%82%E5%BE%88%E5%A4%A7/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+                color-scheme: dark;
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .toc {
+                background: var(--entry);
+            }
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else if (localStorage.getItem("pref-theme") === "light") {
+       document.querySelector("html").dataset.theme = 'light';
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.querySelector("html").dataset.theme = 'dark';
+    } else {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-lite-webfont/style.css" />
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  renderMathInElement(document.body, {
+    delimiters: [
+      {left: "$$", right: "$$", display: true},
+      {left: "$", right: "$", display: false}
+    ]
+  });
+});
+</script>
+
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="学海云舟 (Alt + H)">学海云舟</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu" class="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/posts/">Posts</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      为什么Schrödinger Maestro与AutoDock Vina计算出的“结合能”差异很大?
+    </h1>
+    <div class="post-meta">
+
+<span title='2025-07-12 00:14:52 +0800 CST'>July 12, 2025</span>&nbsp;·&nbsp;<span>1 min</span>
+
+</div>
+  </header> 
+
+  <div class="post-content md-content"><p>目前用于受体-配体结合模式预测的主流软件有两个：其一为商业软件Schrödinger Maestro，它工作流清晰、GUI完善；其二为开源软件AutoDock Vina，它专为“懒人”设计，无需考虑细枝末节即可快速完成预测。</p>
+<p>但我们可以发现，Maestro输出的自由能数据（<code>r_i_glide_energy</code>）与Vina输出的数据（<code>affinity</code>）差别很大。前者多在-7~-5kcal/mol，后者可达到最低-40kcal/mol，这对于包括我在内的初学者造成了一定困扰，到底谁才是真正的“结合自由能”？</p>
+<p>我通过MM/GBSA方法验证了HMOX1与大量小分子的结合自由能，结果显示其与Maestro的输出结果高度一致，这表明Vina所输出的<code>affinity</code>并不是结合自由能。</p>
+<p>通过查阅介绍Vina的文献<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>，我发现Vina所输出的<code>affinity</code>尽管拥有与自由能相同的计量单位“kcal/mol”，但并不是自由能，其在文章中如是说：</p>
+<blockquote>
+<p>We see our approach to the scoring function as more of ”machine learning” than directly physics-based in its nature. It is ultimately justified by its performance on test problems rather than by theoretical considerations following some, possibly too strong, approximating assumptions.</p>
+</blockquote>
+<p>也就是说，<code>affinity</code>是一个更偏向于“机器学习”的对接评分，而不是对自由能的物理计算。这个函数的推导结合了基于知识的势能和经验评分函数的某些优势，而这些优势是从受体-配体复合物的构象偏好和实验亲和力测量中提取得到的经验信息。</p>
+<p>而Maestro在使用Glide模块对接后，也会输出一个列名为<code>r_i_docking_score</code>的对接打分，这个打分同样是使用kcal/mol作为计量单位，同样与MM/GBSA预测到的结果大相径庭。Mastro在其用户手册关于Glide方法论的介绍中作了如下解释：</p>
+<blockquote>
+<p>The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are parametrized in this calibration: these terms should therefore not be interpreted as quantitative calculations of energies.</p>
+</blockquote>
+<p>也就是SP和XP GlideScore都已校准以重现某些实验结合亲和力。GlideScore 公式中的各个项（<code>Emodel</code>、<code>Ecoul</code>等）在校准中进行了参数化：因此这些项不应被解释为能量计算的定量结果。这就与Vina所提供的<code>affinity</code>很相似了。</p>
+<p>因此我们已经可以确定，Vina计算得到的<code>affinity</code>和Maestro计算得到的<code>GlideScore</code>尽管都使用了kcal/mol作为计量单位，但都是人为定义的经过参数化的评分函数，而不是物理（或化学）意义上的结合自由能。评分函数作为一个结合模式的评分参考，应当与结合自由能共同纳入考虑，作为早期虚拟筛选的排序指标。</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>Trott O, Olson AJ. AutoDock Vina: improving the speed and accuracy of docking with a new scoring function, efficient optimization, and multithreading. J Comput Chem. 2010 Jan 30;31(2):455-61. doi: 10.1002/jcc.21334. PMID: 19499576; PMCID: PMC3041641.&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/">学海云舟</a></span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>
