@@ -6,12 +6,28 @@
     <description>Recent content on 学海云舟</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Fri, 01 Aug 2025 00:23:58 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 29 Sep 2025 00:19:22 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ChemBL数据库中mol文件的获取与使用方法</title>
+      <link>http://localhost:1313/posts/chembl%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%ADmol%E6%96%87%E4%BB%B6%E7%9A%84%E8%8E%B7%E5%8F%96%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Mon, 29 Sep 2025 00:19:22 +0800</pubDate>
+      <guid>http://localhost:1313/posts/chembl%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%ADmol%E6%96%87%E4%BB%B6%E7%9A%84%E8%8E%B7%E5%8F%96%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/</guid>
+      <description>&lt;p&gt;目前，全球规模最大的开放化学数据库是PubChem。然而，由于网络访问限制，国内用户有时无法正常使用该数据库，此时ChemBL便成为一个理想的替代选择。与PubChem不同，ChemBL并未在页面上直接提供结构文件下载按钮，这给不少用户带来操作上的困扰。本文将详细介绍如何在ChemBL中获取小分子的mol文件。&lt;/p&gt;
+&lt;p&gt;操作步骤如下：在ChemBL网站中搜索目标小分子，进入其详情页后，向下滚动至“Representations”栏目&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;ChemBL的Representations栏目.webp&#34; loading=&#34;lazy&#34; src=&#34;http://localhost:1313/images/ChemBL%E7%9A%84Representations%E6%A0%8F%E7%9B%AE.webp&#34;&gt;&lt;/p&gt;
+&lt;p&gt;默认情况下，mol文件内容处于隐藏状态，点击“SHOW”即可展开显示。用户也可以直接点击“COPY TO CLIPBOARD”将mol文本内容复制到剪贴板。由于mol文件本质上是文本格式，接下来可在计算机上新建一个文本文件，将其命名为“分子名称.mol”，使用记事本打开该文件，粘贴之前复制的文本内容，保存后即可得到对应的.mol文件。&lt;/p&gt;
+&lt;p&gt;需要注意的是，mol文件无法保存小分子的三维结构信息，因此可能出现键合正确但三维构型错误的情况：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;小分子键合正确但三维结构错误.webp&#34; loading=&#34;lazy&#34; src=&#34;http://localhost:1313/images/%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E6%AD%A3%E7%A1%AE%E4%BD%86%E4%B8%89%E7%BB%B4%E7%BB%93%E6%9E%84%E9%94%99%E8%AF%AF.webp&#34;&gt;&lt;/p&gt;
+&lt;p&gt;为解决该问题，可将mol文件导入Chem3D软件，执行“MM2 Minimize”进行能量最小化计算。&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;Chem3D软件的工具栏.webp&#34; loading=&#34;lazy&#34; src=&#34;http://localhost:1313/images/Chem3D%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%B7%A5%E5%85%B7%E6%A0%8F.webp&#34;&gt;&lt;/p&gt;
+&lt;p&gt;该算法将自动优化分子构象至能量最低状态，之后可将结果保存为支持三维结构信息的.sdf文件。&lt;/p&gt;
+&lt;p&gt;详细操作视频可参考&lt;a href=&#34;URL&#34; title=&#34;https://weixin.qq.com/sph/AwSZKe3DU&#34;&gt;此微信视频号内容&lt;/a&gt;。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>AutoDockTools 导入前处理：避免 PDB/SDF 小分子键合异常</title>
       <link>http://localhost:1313/posts/autodocktools-%E5%AF%BC%E5%85%A5%E5%89%8D%E5%A4%84%E7%90%86%E9%81%BF%E5%85%8D-pdbsdf-%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E5%BC%82%E5%B8%B8/</link>
-      <pubDate>Fri, 01 Aug 2025 00:23:58 +0800</pubDate>
+      <pubDate>Sat, 02 Aug 2025 00:07:58 +0800</pubDate>
       <guid>http://localhost:1313/posts/autodocktools-%E5%AF%BC%E5%85%A5%E5%89%8D%E5%A4%84%E7%90%86%E9%81%BF%E5%85%8D-pdbsdf-%E5%B0%8F%E5%88%86%E5%AD%90%E9%94%AE%E5%90%88%E5%BC%82%E5%B8%B8/</guid>
       <description>&lt;p&gt;分子对接中常用的小分子三维结构通常来源于PubChem数据库。然而，对于一些特殊分子，PubChem可能缺乏其现成的三维结构数据。这时，研究者往往需要从ChemBL等平台获取其二维结构，并通过OpenBabel将其转换为PDB或SDF格式文件，以便导入AutoDockTools(ADT)进行后续的分子对接准备工作。&lt;/p&gt;
 &lt;p&gt;但在导入这些经过转换的小分子文件后，一个常见的问题随之而来：小分子的化学键合状态会出现明显异常，例如键级错误、键长或键角失真等。这种结构混乱问题不仅影响可视化效果，更会严重干扰后续分子对接的准确性，是实际操作中一个令人困扰的障碍。&lt;/p&gt;
