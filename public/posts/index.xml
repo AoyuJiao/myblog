@@ -1,26 +1,58 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Posts on 学海云舟</title>
+    <title>Posts on 学海云舟|分子模拟·Linux</title>
     <link>http://localhost:1313/posts/</link>
-    <description>Recent content in Posts on 学海云舟</description>
+    <description>Recent content in Posts on 学海云舟|分子模拟·Linux</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 17 May 2026 07:50:22 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 17 May 2026 08:48:22 +0800</lastBuildDate>
     <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>GROMACS蛋白-小分子配体结合稳定性的讨论</title>
       <link>http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E7%BB%93%E5%90%88%E7%A8%B3%E5%AE%9A%E6%80%A7%E7%9A%84%E8%AE%A8%E8%AE%BA/</link>
-      <pubDate>Sun, 17 May 2026 07:50:22 +0800</pubDate>
+      <pubDate>Sun, 17 May 2026 08:48:22 +0800</pubDate>
       <guid>http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E7%BB%93%E5%90%88%E7%A8%B3%E5%AE%9A%E6%80%A7%E7%9A%84%E8%AE%A8%E8%AE%BA/</guid>
       <description>&lt;p&gt;小分子配体或药物如何结合到蛋白的活性口袋上，一直是结构生物学和药理学津津乐道的话题。基于湿实验测定的方法，包括X射线晶体衍射法等，尽管直观可靠，但毕竟成本高昂、操作复杂，只能用于在确认药效后的实证而非一个探索手段。为解决此问题，计算机辅助药物设计（CADD）应运而生。得益于计算机计算能力的迅猛提升，通过模拟计算来研究结合过程和模式、药物设计、甚至面向整个小分子库的活性小分子挖掘成为可能。&lt;/p&gt;
 &lt;p&gt;CADD挖掘先导化合物的方法之一便是分子对接，其简单、高效，应用十分广泛。但其存在一个致命的缺点，即分子对接只能研究一个静态的结合过程，不能确认其结合的稳定性如何。分子动力学模拟可用于在一定程度上解决此问题，故本文我们讨论如何基于GROMACS的模拟结果了解蛋白-小分子配体结合的稳定性。&lt;/p&gt;
 &lt;h1 id=&#34;均方根偏差rmsd&#34;&gt;均方根偏差（RMSD）&lt;/h1&gt;
-&lt;p&gt;RMSD是一个数学概念，用来衡量两组值之间的平均相对偏差，且通过平方再开方的方式消除正负相消的问题。对于两组原子体系，其可被描述为：
+&lt;p&gt;RMSD是一个数学概念，用来衡量两组值之间的平均相对偏差，且通过平方再开方的方式避开正负相消的问题。对于原子体系$A$，其在第$n$帧的RMSD可被描述为：
 $$
 RMSD_{A,A_{0}}=\sqrt{\frac{\sum_{n=1}^{N}{(A_0 - \overline{A_{n}})^2} }{N} }
 $$
-其中，&lt;/p&gt;</description>
+其中，$A_n$指的是第$n$帧结构原子位置。$A_0$指的是第0帧也就是初始结构的原子位置，N代表总帧数。这实质上是在比较此帧结构相对与初始结构，在原子坐标（几何）上的偏差。如果对每一帧都计算一次RMSD，并作为一个数据点绘制在以帧号（时间）为横轴，以RMSD值为纵轴的散点图中，在数据点足够多的情况下，就可以得到RMSD相关于时间的曲线。此曲线是分析蛋白-小分子配体结合稳定性最重要的方法。&lt;/p&gt;
+&lt;h2 id=&#34;rmsd的计算方法&#34;&gt;RMSD的计算方法&lt;/h2&gt;
+&lt;p&gt;GROMACS内置了gmx rms命令来完成此计算。假设在工作目录下有&lt;code&gt;md.txc&lt;/code&gt;和&lt;code&gt;md.tpr&lt;/code&gt;两个文件，则可在终端做如下操作计算。&lt;/p&gt;
+&lt;p&gt;首先，推荐新建一个目录，用来储存RMSD数据，以及为后续绘图做准备，可避免文件混乱。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;mkdir rmsd &amp;amp;&amp;amp; cd rmsd
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来，计算蛋白自体RMSD。此处建议基于蛋白碳骨架（&lt;code&gt;C-alpha&lt;/code&gt;）而非整个蛋白（&lt;code&gt;Protein&lt;/code&gt;）进行计算，从而减少侧链对结果的干扰。选择蛋白碳骨架（&lt;code&gt;C-alpha&lt;/code&gt;）进行输出。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;gmx rms -f ../md.xtc -s ../md.tpr -o rmsd_protein.xvg
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来，计算配体相对于蛋白的RMSD&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;。此处同样建议基于蛋白碳骨架（&lt;code&gt;C-alpha&lt;/code&gt;）计算，选择小分子组进行输出。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;gmx rms -f ../md.xtc -s ../md.tpr -o rmsd_lig.xvg
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;输出的&lt;code&gt;.xvg&lt;/code&gt;文件是一个同时包含数据和可视化方案的文件形式，当使用XmGrace等工具打开时，可以直接读取数据并完成绘图。
+&lt;img alt=&#34;小分子RMSD&#34; loading=&#34;lazy&#34; src=&#34;http://localhost:1313/images/%E5%B0%8F%E5%88%86%E5%AD%90RMSD.webp&#34;&gt;
+上图即为一段由XmGrace绘制的小分子配体相对于蛋白骨架碳原子的RMSD曲线，整体波动在0.5nm左右，并不太大，但又几处明显的波动。此时，可以参考蛋白骨架碳原子的自体RMSD曲线。
+&lt;img alt=&#34;蛋白RMSD&#34; loading=&#34;lazy&#34; src=&#34;http://localhost:1313/images/%E8%9B%8B%E7%99%BDRMSD.webp&#34;&gt;
+如图为蛋白骨架碳原子的自体RMSD曲线，可以看到蛋白的RMSD约为0.25nm,且相对平稳，没有明显的跃变，说明小分子的RMSD波动并非由蛋白引起，而源于自身的构象改变。后续可根据轨迹分析进行确认。&lt;code&gt;.xvg&lt;/code&gt;文件是纯文本型的，有标准的数据输出格式，可以复制出来进行后续的高阶统计分析与可视化。&lt;/p&gt;
+&lt;h1 id=&#34;均方根波动rmsf&#34;&gt;均方根波动（RMSF）&lt;/h1&gt;
+&lt;p&gt;RMSF与RMSD本质上属于同一种计算方法，但RMSD面向所关注的整个体系，而RMSF可以面向一个残基甚至一个原子，因此常用来描述口袋的刚柔性。一般来说，一个残基的RMSF越大，其柔性越高。&lt;/p&gt;
+&lt;h2 id=&#34;rmsf的计算&#34;&gt;RMSF的计算&lt;/h2&gt;
+&lt;p&gt;首先，推荐新建一个目录，用来储存RMSD数据，以及为后续绘图做准备，可避免文件混乱。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;mkdir rmsf &amp;amp;&amp;amp; cd rmsf
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;市面上的教程常推荐研究整个蛋白中所有原子的RMSF,这是从蛋白质性质研究中遗传下来的做法，但对于验证配体在蛋白口袋中的结合稳定性意义不大。如要研究蛋白口袋的刚柔性，只把口袋中的残基纳入计算即可。因此，我们需要通过以下命令定义“选择属于&lt;code&gt;Protein&lt;/code&gt;组的所有原子，并且这些原子距离被重命名为&lt;code&gt;MOL&lt;/code&gt;的分子在 5 埃（Å）&lt;sup id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;的范围之内”，如果小分子不是&lt;code&gt;MOL&lt;/code&gt;，请在命令中对应替换。&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;gmx select -s ../md.tpr -select &amp;#34;group Protein and within 0.5 of resname MOL&amp;#34; -on clean_site.ndx
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;em&gt;（未完待续）&lt;/em&gt;&lt;/p&gt;
+&lt;div class=&#34;footnotes&#34; role=&#34;doc-endnotes&#34;&gt;
+&lt;hr&gt;
+&lt;ol&gt;
+&lt;li id=&#34;fn:1&#34;&gt;
+&lt;p&gt;此处也可选择计算配体自体RMSD。但需注意，配体通常原子数比较少，受热噪声的影响更明显，针对RMSD的突变需要更谨慎的解释。&amp;#160;&lt;a href=&#34;#fnref:1&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li id=&#34;fn:2&#34;&gt;
+&lt;p&gt;$1nm=10Å$。5Å被认为是可以发生contact的最大合理截断距离。doi:s41598-017-01498-6.&amp;#160;&lt;a href=&#34;#fnref:2&#34; class=&#34;footnote-backref&#34; role=&#34;doc-backlink&#34;&gt;&amp;#x21a9;&amp;#xfe0e;&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/div&gt;</description>
     </item>
     <item>
       <title>GROMACS蛋白-小分子配体轨迹的预处理方法</title>
@@ -28,7 +60,7 @@ $$
       <pubDate>Sun, 17 May 2026 07:50:22 +0800</pubDate>
       <guid>http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E8%BD%A8%E8%BF%B9%E7%9A%84%E9%A2%84%E5%A4%84%E7%90%86%E6%96%B9%E6%B3%95/</guid>
       <description>&lt;p&gt;GROMACS是一款以普适及高性能著称的分子动力学模拟程序，广泛用于各类分子动力学模拟任务。本文针对蛋白-小分子配体的模拟结果提出一种通用化的轨迹预处理方法，可以用于各类非膜蛋白体系以及包括&lt;code&gt;none&lt;/code&gt;，&lt;code&gt;linear&lt;/code&gt;，&lt;code&gt;angular&lt;/code&gt;等在内的各类平转动消除方法。&lt;/p&gt;
-&lt;p&gt;此预处理主要分成三个基本步骤，分别是时间连续、空间整理、清除平转动。以下假设工作目录中包含&lt;code&gt;md.xtc&lt;/code&gt;和&lt;code&gt;md.tpr&lt;/code&gt;两个生产动力学模拟结果，以及&lt;code&gt;index.ndx&lt;/code&gt;索引文件&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
+&lt;p&gt;此预处理主要分成三个基本步骤，分别是时间连续、空间整理、清除平转动。以下假设工作目录中包含&lt;code&gt;md.xtc&lt;/code&gt;和&lt;code&gt;md.tpr&lt;/code&gt;两个生产动力学模拟文件，以及&lt;code&gt;index.ndx&lt;/code&gt;索引文件&lt;sup id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34; class=&#34;footnote-ref&#34; role=&#34;doc-noteref&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;。&lt;/p&gt;
 &lt;h2 id=&#34;时间连续化&#34;&gt;时间连续化&lt;/h2&gt;
 &lt;p&gt;此步骤用于消除周期性边界条件（PBC）所引起的边界跳跃，并使其紧凑。&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;gmx trjconv -f md.xtc -s md.tpr -pbc nojump -ur compact -o step1_nojump.xtc

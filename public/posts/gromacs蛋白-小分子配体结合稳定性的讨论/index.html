@@ -5,16 +5,48 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>GROMACS蛋白-小分子配体结合稳定性的讨论 | 学海云舟</title>
+<title>GROMACS蛋白-小分子配体结合稳定性的讨论 | 学海云舟|分子模拟·Linux</title>
 <meta name="keywords" content="">
 <meta name="description" content="小分子配体或药物如何结合到蛋白的活性口袋上，一直是结构生物学和药理学津津乐道的话题。基于湿实验测定的方法，包括X射线晶体衍射法等，尽管直观可靠，但毕竟成本高昂、操作复杂，只能用于在确认药效后的实证而非一个探索手段。为解决此问题，计算机辅助药物设计（CADD）应运而生。得益于计算机计算能力的迅猛提升，通过模拟计算来研究结合过程和模式、药物设计、甚至面向整个小分子库的活性小分子挖掘成为可能。
 CADD挖掘先导化合物的方法之一便是分子对接，其简单、高效，应用十分广泛。但其存在一个致命的缺点，即分子对接只能研究一个静态的结合过程，不能确认其结合的稳定性如何。分子动力学模拟可用于在一定程度上解决此问题，故本文我们讨论如何基于GROMACS的模拟结果了解蛋白-小分子配体结合的稳定性。
 均方根偏差（RMSD）
-RMSD是一个数学概念，用来衡量两组值之间的平均相对偏差，且通过平方再开方的方式消除正负相消的问题。对于两组原子体系，其可被描述为：
+RMSD是一个数学概念，用来衡量两组值之间的平均相对偏差，且通过平方再开方的方式避开正负相消的问题。对于原子体系$A$，其在第$n$帧的RMSD可被描述为：
 $$
 RMSD_{A,A_{0}}=\sqrt{\frac{\sum_{n=1}^{N}{(A_0 - \overline{A_{n}})^2} }{N} }
 $$
-其中，">
+其中，$A_n$指的是第$n$帧结构原子位置。$A_0$指的是第0帧也就是初始结构的原子位置，N代表总帧数。这实质上是在比较此帧结构相对与初始结构，在原子坐标（几何）上的偏差。如果对每一帧都计算一次RMSD，并作为一个数据点绘制在以帧号（时间）为横轴，以RMSD值为纵轴的散点图中，在数据点足够多的情况下，就可以得到RMSD相关于时间的曲线。此曲线是分析蛋白-小分子配体结合稳定性最重要的方法。
+RMSD的计算方法
+GROMACS内置了gmx rms命令来完成此计算。假设在工作目录下有md.txc和md.tpr两个文件，则可在终端做如下操作计算。
+首先，推荐新建一个目录，用来储存RMSD数据，以及为后续绘图做准备，可避免文件混乱。
+mkdir rmsd &amp;&amp; cd rmsd
+接下来，计算蛋白自体RMSD。此处建议基于蛋白碳骨架（C-alpha）而非整个蛋白（Protein）进行计算，从而减少侧链对结果的干扰。选择蛋白碳骨架（C-alpha）进行输出。
+gmx rms -f ../md.xtc -s ../md.tpr -o rmsd_protein.xvg
+接下来，计算配体相对于蛋白的RMSD1。此处同样建议基于蛋白碳骨架（C-alpha）计算，选择小分子组进行输出。
+gmx rms -f ../md.xtc -s ../md.tpr -o rmsd_lig.xvg
+输出的.xvg文件是一个同时包含数据和可视化方案的文件形式，当使用XmGrace等工具打开时，可以直接读取数据并完成绘图。
+
+上图即为一段由XmGrace绘制的小分子配体相对于蛋白骨架碳原子的RMSD曲线，整体波动在0.5nm左右，并不太大，但又几处明显的波动。此时，可以参考蛋白骨架碳原子的自体RMSD曲线。
+
+如图为蛋白骨架碳原子的自体RMSD曲线，可以看到蛋白的RMSD约为0.25nm,且相对平稳，没有明显的跃变，说明小分子的RMSD波动并非由蛋白引起，而源于自身的构象改变。后续可根据轨迹分析进行确认。.xvg文件是纯文本型的，有标准的数据输出格式，可以复制出来进行后续的高阶统计分析与可视化。
+均方根波动（RMSF）
+RMSF与RMSD本质上属于同一种计算方法，但RMSD面向所关注的整个体系，而RMSF可以面向一个残基甚至一个原子，因此常用来描述口袋的刚柔性。一般来说，一个残基的RMSF越大，其柔性越高。
+RMSF的计算
+首先，推荐新建一个目录，用来储存RMSD数据，以及为后续绘图做准备，可避免文件混乱。
+mkdir rmsf &amp;&amp; cd rmsf
+市面上的教程常推荐研究整个蛋白中所有原子的RMSF,这是从蛋白质性质研究中遗传下来的做法，但对于验证配体在蛋白口袋中的结合稳定性意义不大。如要研究蛋白口袋的刚柔性，只把口袋中的残基纳入计算即可。因此，我们需要通过以下命令定义“选择属于Protein组的所有原子，并且这些原子距离被重命名为MOL的分子在 5 埃（Å）2的范围之内”，如果小分子不是MOL，请在命令中对应替换。
+gmx select -s ../md.tpr -select &#34;group Protein and within 0.5 of resname MOL&#34; -on clean_site.ndx
+（未完待续）
+
+
+
+
+此处也可选择计算配体自体RMSD。但需注意，配体通常原子数比较少，受热噪声的影响更明显，针对RMSD的突变需要更谨慎的解释。&#160;&#x21a9;&#xfe0e;
+
+
+$1nm=10Å$。5Å被认为是可以发生contact的最大合理截断距离。doi:s41598-017-01498-6.&#160;&#x21a9;&#xfe0e;
+
+
+">
 <meta name="author" content="">
 <link rel="canonical" href="http://localhost:1313/posts/gromacs%E8%9B%8B%E7%99%BD-%E5%B0%8F%E5%88%86%E5%AD%90%E9%85%8D%E4%BD%93%E7%BB%93%E5%90%88%E7%A8%B3%E5%AE%9A%E6%80%A7%E7%9A%84%E8%AE%A8%E8%AE%BA/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.25d21dbd4307f87f912c584b8648099485bcc042471b9136f46be3e5612ddd02.css" integrity="sha256-JdIdvUMH&#43;H&#43;RLFhLhkgJlIW8wEJHG5E29Gvj5WEt3QI=" rel="preload stylesheet" as="style">
@@ -95,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
-            <a href="http://localhost:1313/" accesskey="h" title="学海云舟 (Alt + H)">学海云舟</a>
+            <a href="http://localhost:1313/" accesskey="h" title="学海云舟|分子模拟·Linux (Alt + H)">学海云舟|分子模拟·Linux</a>
             <div class="logo-switches">
                 <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
                     <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
@@ -144,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function() {
     </h1>
     <div class="post-meta">
 
-<span title='2026-05-17 07:50:22 +0800 CST'>May 17, 2026</span>
+<span title='2026-05-17 08:48:22 +0800 CST'>May 17, 2026</span>
 
 </div>
   </header> <details class="toc" >
@@ -154,8 +186,19 @@ document.addEventListener("DOMContentLoaded", function() {
 
     <div class="inner"><ul>
             <li>
-                <a href="#%e5%9d%87%e6%96%b9%e6%a0%b9%e5%81%8f%e5%b7%aermsd" aria-label="均方根偏差（RMSD）">均方根偏差（RMSD）</a>
+                <a href="#%e5%9d%87%e6%96%b9%e6%a0%b9%e5%81%8f%e5%b7%aermsd" aria-label="均方根偏差（RMSD）">均方根偏差（RMSD）</a><ul>
+                    
+            <li>
+                <a href="#rmsd%e7%9a%84%e8%ae%a1%e7%ae%97%e6%96%b9%e6%b3%95" aria-label="RMSD的计算方法">RMSD的计算方法</a></li></ul>
             </li>
+            <li>
+                <a href="#%e5%9d%87%e6%96%b9%e6%a0%b9%e6%b3%a2%e5%8a%a8rmsf" aria-label="均方根波动（RMSF）">均方根波动（RMSF）</a><ul>
+                    
+            <li>
+                <a href="#rmsf%e7%9a%84%e8%ae%a1%e7%ae%97" aria-label="RMSF的计算">RMSF的计算</a>
+            </li>
+        </ul>
+        </li>
         </ul>
     </div>
 </details>
@@ -163,11 +206,43 @@ document.addEventListener("DOMContentLoaded", function() {
   <div class="post-content md-content"><p>小分子配体或药物如何结合到蛋白的活性口袋上，一直是结构生物学和药理学津津乐道的话题。基于湿实验测定的方法，包括X射线晶体衍射法等，尽管直观可靠，但毕竟成本高昂、操作复杂，只能用于在确认药效后的实证而非一个探索手段。为解决此问题，计算机辅助药物设计（CADD）应运而生。得益于计算机计算能力的迅猛提升，通过模拟计算来研究结合过程和模式、药物设计、甚至面向整个小分子库的活性小分子挖掘成为可能。</p>
 <p>CADD挖掘先导化合物的方法之一便是分子对接，其简单、高效，应用十分广泛。但其存在一个致命的缺点，即分子对接只能研究一个静态的结合过程，不能确认其结合的稳定性如何。分子动力学模拟可用于在一定程度上解决此问题，故本文我们讨论如何基于GROMACS的模拟结果了解蛋白-小分子配体结合的稳定性。</p>
 <h1 id="均方根偏差rmsd">均方根偏差（RMSD）<a hidden class="anchor" aria-hidden="true" href="#均方根偏差rmsd">#</a></h1>
-<p>RMSD是一个数学概念，用来衡量两组值之间的平均相对偏差，且通过平方再开方的方式消除正负相消的问题。对于两组原子体系，其可被描述为：
+<p>RMSD是一个数学概念，用来衡量两组值之间的平均相对偏差，且通过平方再开方的方式避开正负相消的问题。对于原子体系$A$，其在第$n$帧的RMSD可被描述为：
 $$
 RMSD_{A,A_{0}}=\sqrt{\frac{\sum_{n=1}^{N}{(A_0 - \overline{A_{n}})^2} }{N} }
 $$
-其中，</p>
+其中，$A_n$指的是第$n$帧结构原子位置。$A_0$指的是第0帧也就是初始结构的原子位置，N代表总帧数。这实质上是在比较此帧结构相对与初始结构，在原子坐标（几何）上的偏差。如果对每一帧都计算一次RMSD，并作为一个数据点绘制在以帧号（时间）为横轴，以RMSD值为纵轴的散点图中，在数据点足够多的情况下，就可以得到RMSD相关于时间的曲线。此曲线是分析蛋白-小分子配体结合稳定性最重要的方法。</p>
+<h2 id="rmsd的计算方法">RMSD的计算方法<a hidden class="anchor" aria-hidden="true" href="#rmsd的计算方法">#</a></h2>
+<p>GROMACS内置了gmx rms命令来完成此计算。假设在工作目录下有<code>md.txc</code>和<code>md.tpr</code>两个文件，则可在终端做如下操作计算。</p>
+<p>首先，推荐新建一个目录，用来储存RMSD数据，以及为后续绘图做准备，可避免文件混乱。</p>
+<pre tabindex="0"><code>mkdir rmsd &amp;&amp; cd rmsd
+</code></pre><p>接下来，计算蛋白自体RMSD。此处建议基于蛋白碳骨架（<code>C-alpha</code>）而非整个蛋白（<code>Protein</code>）进行计算，从而减少侧链对结果的干扰。选择蛋白碳骨架（<code>C-alpha</code>）进行输出。</p>
+<pre tabindex="0"><code>gmx rms -f ../md.xtc -s ../md.tpr -o rmsd_protein.xvg
+</code></pre><p>接下来，计算配体相对于蛋白的RMSD<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>。此处同样建议基于蛋白碳骨架（<code>C-alpha</code>）计算，选择小分子组进行输出。</p>
+<pre tabindex="0"><code>gmx rms -f ../md.xtc -s ../md.tpr -o rmsd_lig.xvg
+</code></pre><p>输出的<code>.xvg</code>文件是一个同时包含数据和可视化方案的文件形式，当使用XmGrace等工具打开时，可以直接读取数据并完成绘图。
+<img alt="小分子RMSD" loading="lazy" src="/images/%E5%B0%8F%E5%88%86%E5%AD%90RMSD.webp">
+上图即为一段由XmGrace绘制的小分子配体相对于蛋白骨架碳原子的RMSD曲线，整体波动在0.5nm左右，并不太大，但又几处明显的波动。此时，可以参考蛋白骨架碳原子的自体RMSD曲线。
+<img alt="蛋白RMSD" loading="lazy" src="/images/%E8%9B%8B%E7%99%BDRMSD.webp">
+如图为蛋白骨架碳原子的自体RMSD曲线，可以看到蛋白的RMSD约为0.25nm,且相对平稳，没有明显的跃变，说明小分子的RMSD波动并非由蛋白引起，而源于自身的构象改变。后续可根据轨迹分析进行确认。<code>.xvg</code>文件是纯文本型的，有标准的数据输出格式，可以复制出来进行后续的高阶统计分析与可视化。</p>
+<h1 id="均方根波动rmsf">均方根波动（RMSF）<a hidden class="anchor" aria-hidden="true" href="#均方根波动rmsf">#</a></h1>
+<p>RMSF与RMSD本质上属于同一种计算方法，但RMSD面向所关注的整个体系，而RMSF可以面向一个残基甚至一个原子，因此常用来描述口袋的刚柔性。一般来说，一个残基的RMSF越大，其柔性越高。</p>
+<h2 id="rmsf的计算">RMSF的计算<a hidden class="anchor" aria-hidden="true" href="#rmsf的计算">#</a></h2>
+<p>首先，推荐新建一个目录，用来储存RMSD数据，以及为后续绘图做准备，可避免文件混乱。</p>
+<pre tabindex="0"><code>mkdir rmsf &amp;&amp; cd rmsf
+</code></pre><p>市面上的教程常推荐研究整个蛋白中所有原子的RMSF,这是从蛋白质性质研究中遗传下来的做法，但对于验证配体在蛋白口袋中的结合稳定性意义不大。如要研究蛋白口袋的刚柔性，只把口袋中的残基纳入计算即可。因此，我们需要通过以下命令定义“选择属于<code>Protein</code>组的所有原子，并且这些原子距离被重命名为<code>MOL</code>的分子在 5 埃（Å）<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>的范围之内”，如果小分子不是<code>MOL</code>，请在命令中对应替换。</p>
+<pre tabindex="0"><code>gmx select -s ../md.tpr -select &#34;group Protein and within 0.5 of resname MOL&#34; -on clean_site.ndx
+</code></pre><p><em>（未完待续）</em></p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p>此处也可选择计算配体自体RMSD。但需注意，配体通常原子数比较少，受热噪声的影响更明显，针对RMSD的突变需要更谨慎的解释。&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p>$1nm=10Å$。5Å被认为是可以发生contact的最大合理截断距离。doi:s41598-017-01498-6.&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
 
 
   </div>
@@ -187,7 +262,7 @@ $$
     </main>
     
 <footer class="footer">
-        <span>&copy; 2026 <a href="http://localhost:1313/">学海云舟</a></span> · 
+        <span>&copy; 2026 <a href="http://localhost:1313/">学海云舟|分子模拟·Linux</a></span> · 
 
     
     
