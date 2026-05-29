@@ -170,5 +170,12 @@ $$
 &lt;blockquote&gt;
 &lt;p&gt;The individual terms (Emodel, Ecoul, and so on) in the GlideScore formula are parametrized in this calibration: these terms should therefore not be interpreted as quantitative calculations of energies.&lt;/p&gt;</description>
     </item>
+    <item>
+      <title>RESP2(0.5)计算器</title>
+      <link>http://localhost:1313/scripts/resp20.5/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/scripts/resp20.5/</guid>
+      <description>基于气相和溶剂相的电荷文件计算RESP2(0.5)电荷</description>
+    </item>
   </channel>
 </rss>

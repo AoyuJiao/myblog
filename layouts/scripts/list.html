@@ -1,0 +1,72 @@
+{{ define "main" }}
+
+<div class="scripts-container">
+
+<h1>Scripts</h1>
+
+<input
+    type="text"
+    id="scriptSearch"
+    placeholder="Search scripts..."
+    class="script-search"
+/>
+
+<table class="scripts-table" id="scriptsTable">
+    <thead>
+        <tr>
+            <th>Script</th>
+            <th>Description</th>
+            <th>Download</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {{ range .Pages }}
+
+        <tr>
+            <td>
+                <a href="{{ .RelPermalink }}">
+                    {{ .Title }}
+                </a>
+            </td>
+
+            <td>
+                {{ .Params.description }}
+            </td>
+
+            <td>
+                <a href="{{ .Params.download }}" download>
+                    Download
+                </a>
+            </td>
+        </tr>
+
+        {{ end }}
+    </tbody>
+</table>
+
+</div>
+
+<script>
+document.getElementById("scriptSearch").addEventListener("keyup", function () {
+
+    let filter = this.value.toLowerCase();
+
+    let rows = document.querySelectorAll("#scriptsTable tbody tr");
+
+    rows.forEach(row => {
+
+        let text = row.innerText.toLowerCase();
+
+        if (text.includes(filter)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+
+    });
+
+});
+</script>
+
+{{ end }}

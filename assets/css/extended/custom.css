@@ -9,3 +9,16 @@ body {
 .post-content pre {
   border-radius: 12px;
 }
+
+.main article {
+  max-width: 1400px !important;
+  width: 100% !important;
+}
+
+.post-content {
+  max-width: 100% !important;
+}
+
+table {
+  width: 100%;
+}

@@ -1,0 +1,43 @@
+.scripts-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.scripts-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.scripts-table th,
+.scripts-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+}
+
+.scripts-table th:nth-child(1) {
+    width: 25%;
+}
+
+.scripts-table th:nth-child(2) {
+    width: 55%;
+}
+
+.scripts-table th:nth-child(3) {
+    width: 20%;
+}
+
+.script-search {
+    width: 100%;
+    padding: 12px 16px;
+    margin: 1rem 0 1.5rem 0;
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    background: var(--theme);
+    color: var(--primary);
+
+    font-size: 1rem;
+}

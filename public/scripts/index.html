@@ -5,11 +5,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>Tags | 学海云舟|分子模拟·Linux</title>
+<title>Scripts | 学海云舟|分子模拟·Linux</title>
 <meta name="keywords" content="">
-<meta name="description" content="">
+<meta name="description" content="Scripts - 学海云舟|分子模拟·Linux">
 <meta name="author" content="">
-<link rel="canonical" href="http://localhost:1313/tags/">
+<link rel="canonical" href="http://localhost:1313/scripts/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.3ef297ac2543dd18b5a124ffbe469ea024c36df60502e3cbe67a4e62f70633df.css" integrity="sha256-PvKXrCVD3Ri1oST/vkaeoCTDbfYFAuPL5npOYvcGM98=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
@@ -18,8 +18,8 @@
 <link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="http://localhost:1313/tags/index.xml" title="rss">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/tags/">
+<link rel="alternate" type="application/rss+xml" href="http://localhost:1313/scripts/index.xml" title="rss">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/scripts/">
 <noscript>
     <style>
         #theme-toggle,
@@ -121,19 +121,84 @@ document.addEventListener("DOMContentLoaded", function() {
             </li>
             <li>
                 <a href="http://localhost:1313/scripts/" title="文件下载">
-                    <span>文件下载</span>
+                    <span class="active">文件下载</span>
                 </a>
             </li>
         </ul>
     </nav>
 </header>
 <main class="main">
-<header class="page-header">
-    <h1>Tags</h1>
-</header>
 
-<ul class="terms-tags">
-</ul>
+<div class="scripts-container">
+
+<h1>Scripts</h1>
+
+<input
+    type="text"
+    id="scriptSearch"
+    placeholder="Search scripts..."
+    class="script-search"
+/>
+
+<table class="scripts-table" id="scriptsTable">
+    <thead>
+        <tr>
+            <th>Script</th>
+            <th>Description</th>
+            <th>Download</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        
+
+        <tr>
+            <td>
+                <a href="/scripts/resp20.5/">
+                    RESP2(0.5)计算器
+                </a>
+            </td>
+
+            <td>
+                基于气相和溶剂相的电荷文件计算RESP2(0.5)电荷
+            </td>
+
+            <td>
+                <a href="/files/RESP2_0.5.sh" download>
+                    Download
+                </a>
+            </td>
+        </tr>
+
+        
+    </tbody>
+</table>
+
+</div>
+
+<script>
+document.getElementById("scriptSearch").addEventListener("keyup", function () {
+
+    let filter = this.value.toLowerCase();
+
+    let rows = document.querySelectorAll("#scriptsTable tbody tr");
+
+    rows.forEach(row => {
+
+        let text = row.innerText.toLowerCase();
+
+        if (text.includes(filter)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+
+    });
+
+});
+</script>
+
+
     </main>
     
 <footer class="footer">
