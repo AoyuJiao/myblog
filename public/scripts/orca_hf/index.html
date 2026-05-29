@@ -5,11 +5,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>Scripts | 学海云舟|分子模拟·Linux</title>
+<title>orca_hf.inp | 学海云舟|分子模拟·Linux</title>
 <meta name="keywords" content="">
-<meta name="description" content="Scripts - 学海云舟|分子模拟·Linux">
+<meta name="description" content="适用于ORCA 6.0.1的小分子几何优化和频率分析的输入文件模板">
 <meta name="author" content="">
-<link rel="canonical" href="http://localhost:1313/scripts/">
+<link rel="canonical" href="http://localhost:1313/scripts/orca_hf/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.3ef297ac2543dd18b5a124ffbe469ea024c36df60502e3cbe67a4e62f70633df.css" integrity="sha256-PvKXrCVD3Ri1oST/vkaeoCTDbfYFAuPL5npOYvcGM98=" rel="preload stylesheet" as="style">
 <link rel="icon" href="http://localhost:1313/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
@@ -18,8 +18,7 @@
 <link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="http://localhost:1313/scripts/index.xml" title="rss">
-<link rel="alternate" hreflang="en" href="http://localhost:1313/scripts/">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/scripts/orca_hf/">
 <noscript>
     <style>
         #theme-toggle,
@@ -85,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 </head>
-<body class="list" id="top">
+<body id="top">
     <header class="header">
     <nav class="header-nav">
         <div class="logo">
@@ -121,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function() {
             </li>
             <li>
                 <a href="http://localhost:1313/scripts/" title="文件下载">
-                    <span class="active">文件下载</span>
+                    <span>文件下载</span>
                 </a>
             </li>
         </ul>
@@ -129,96 +128,77 @@ document.addEventListener("DOMContentLoaded", function() {
 </header>
 <main class="main">
 
-<div class="scripts-container">
+<article class="post-single">
+  <header class="post-header">
+    <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <a href="/scripts/">Scripts</a>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+        <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+</nav>
+    <h1 class="post-title entry-hint-parent">
+      orca_hf.inp
+    </h1>
+    <div class="post-description">
+      适用于ORCA 6.0.1的小分子几何优化和频率分析的输入文件模板
+    </div>
+    <div class="post-meta">
 
-<h1>Scripts</h1>
 
-<input
-    type="text"
-    id="scriptSearch"
-    placeholder="Search scripts..."
-    class="script-search"
-/>
-
-<table class="scripts-table" id="scriptsTable">
-    <thead>
-        <tr>
-            <th>Script</th>
-            <th>Description</th>
-            <th>Download</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        
-
-        <tr>
-            <td>
-                <a href="/scripts/orca_hf/">
-                    orca_hf.inp
-                </a>
-            </td>
-
-            <td>
-                适用于ORCA 6.0.1的小分子几何优化和频率分析的输入文件模板
-            </td>
-
-            <td>
-                <a href="/files/orca_hf.inp" download>
-                    Download
-                </a>
-            </td>
-        </tr>
-
-        
-
-        <tr>
-            <td>
-                <a href="/scripts/resp20.5/">
-                    RESP2(0.5)计算器
-                </a>
-            </td>
-
-            <td>
-                基于气相和溶剂相的电荷文件计算RESP2(0.5)电荷
-            </td>
-
-            <td>
-                <a href="/files/RESP2_0.5.sh" download>
-                    Download
-                </a>
-            </td>
-        </tr>
-
-        
-    </tbody>
-</table>
 
 </div>
+  </header> <details class="toc" >
+    <summary accesskey="c" title="(Alt + C)">
+        <span class="title">Table of Contents</span>
+    </summary>
 
-<script>
-document.getElementById("scriptSearch").addEventListener("keyup", function () {
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e4%bd%bf%e7%94%a8%e6%96%b9%e6%b3%95" aria-label="使用方法">使用方法</a></li>
+            <li>
+                <a href="#%e4%b8%8b%e8%bd%bd" aria-label="下载">下载</a>
+            </li>
+        </ul>
+    </div>
+</details>
 
-    let filter = this.value.toLowerCase();
+  <div class="post-content md-content"><p>本输入文件选用HF/6-31G*理论级别，与目前主流的AMBER等原子力场在开发时使用的级别保持一致。由此得到的<code>.hess</code>文件可结合Sobtop计算键参数，<code>.gbw</code>文件可结合Multiwfn计算RESP电荷。</p>
+<h1 id="使用方法">使用方法<a hidden class="anchor" aria-hidden="true" href="#使用方法">#</a></h1>
+<p>首先，调整<code>.inp</code>文件中此行的<code>16</code>至实际并行核心数：</p>
+<pre tabindex="0"><code>%pal nprocs 16 end
+</code></pre><p>然后，调整<code>.inp</code>文件中此行的<code>3000</code>调整每核心实际分配的运行内存，单位为MB：</p>
+<pre tabindex="0"><code>%maxcore 3000
+</code></pre><p>然后，调整<code>.inp</code>文件中此行的<code>0 1</code>至实际电荷和自旋多重度：</p>
+<pre tabindex="0"><code>* xyz 0 1
+</code></pre><p>然后，在<code>.inp</code>文件中两个<code>*</code>中间的行粘贴<code>.xyz</code>格式的原子坐标，准备好的文件应例如：</p>
+<pre tabindex="0"><code>! HF 6-31G* Opt Freq
+%pal nprocs 16 end
+%maxcore 3000
+* xyz 0 1
+C      8.4730000000  -19.6330000000   15.3890000000
+C     10.0180000000  -19.5090000000   15.4910000000
+*
+</code></pre><p>最后，运行如下命令启动运算：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>orca orca_hf.inp &gt; orca_hf.out
+</span></span></code></pre></div><p>日志文件将以文本文件的形式保存至<code>orca_hf.out</code></p>
+<h1 id="下载">下载<a hidden class="anchor" aria-hidden="true" href="#下载">#</a></h1>
+<p><a href="/files/orca_hf.inp">HF/6-31G*级别的ORCA输入模板</a>    <a href="/files/example.xyz">.xyz文件示例</a></p>
 
-    let rows = document.querySelectorAll("#scriptsTable tbody tr");
 
-    rows.forEach(row => {
+  </div>
 
-        let text = row.innerText.toLowerCase();
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
 
-        if (text.includes(filter)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-
-    });
-
-});
-</script>
-
-
+  </footer>
+</article>
     </main>
     
 <footer class="footer">
@@ -298,6 +278,53 @@ document.getElementById("scriptSearch").addEventListener("keyup", function () {
         }
     })
 
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
 </script>
 </body>
 

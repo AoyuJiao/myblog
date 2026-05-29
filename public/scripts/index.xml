@@ -8,6 +8,13 @@
     <language>zh-cn</language>
     <atom:link href="http://localhost:1313/scripts/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>orca_hf.inp</title>
+      <link>http://localhost:1313/scripts/orca_hf/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/scripts/orca_hf/</guid>
+      <description>适用于ORCA 6.0.1的小分子几何优化和频率分析的输入文件模板</description>
+    </item>
+    <item>
       <title>RESP2(0.5)计算器</title>
       <link>http://localhost:1313/scripts/resp20.5/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
